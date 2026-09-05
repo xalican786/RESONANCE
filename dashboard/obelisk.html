@@ -1,0 +1,1395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>RESONANCE — JUPITERR</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  /* OBSIDIAN + ELECTRIC BLUE + WHITE — 3 colours only */
+  --obs:    #070709;
+  --obs2:   #0D0D14;
+  --obs3:   #131320;
+  --blue:   #0A84FF;
+  --blue2:  #0066CC;
+  --blue3:  #004499;
+  --white:  #FFFFFF;
+  --white2: #C8D8F0;
+  --white3: #6080A0;
+  --dim:    #2A3A4A;
+  /* Derived */
+  --border: rgba(10,132,255,0.12);
+  --border2:rgba(10,132,255,0.25);
+  --glow:   0 0 20px rgba(10,132,255,0.35), 0 0 60px rgba(10,132,255,0.12);
+  --r:      4px;
+  --rail:   192px;
+  --F-title:'Orbitron',monospace;
+  --F-num:  'Rajdhani',sans-serif;
+  --F-body: 'Inter',sans-serif;
+  --F-mono: 'JetBrains Mono',monospace;
+}
+html,body{height:100%;background:var(--obs);color:var(--white2);font-family:var(--F-body);font-size:12px;overflow:hidden;-webkit-font-smoothing:antialiased}
+::-webkit-scrollbar{width:2px}::-webkit-scrollbar-thumb{background:var(--blue3)}
+
+/* GRID OVERLAY */
+body::before{
+  content:'';position:fixed;inset:0;pointer-events:none;z-index:0;
+  background-image:
+    linear-gradient(rgba(10,132,255,0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10,132,255,0.025) 1px, transparent 1px);
+  background-size:60px 60px;
+}
+
+/* SCAN LINE */
+body::after{
+  content:'';position:fixed;left:0;right:0;height:2px;pointer-events:none;z-index:1;
+  background:linear-gradient(transparent, rgba(10,132,255,0.04), transparent);
+  animation:scan 16s linear infinite;
+}
+@keyframes scan{0%{top:0}100%{top:100vh}}
+
+#app{position:relative;z-index:2;display:flex;height:100vh}
+
+/* ═══════════════════════════════════════════════════════════════
+   RAIL
+═══════════════════════════════════════════════════════════════ */
+#rail{
+  width:var(--rail);background:var(--obs2);
+  border-right:1px solid var(--border);
+  display:flex;flex-direction:column;flex-shrink:0;overflow:hidden;
+}
+.rail-header{padding:18px 14px 14px;border-bottom:1px solid var(--border)}
+.rail-logo{
+  font-family:var(--F-title);font-size:12px;font-weight:900;
+  letter-spacing:4px;color:var(--white);
+  text-shadow:var(--glow);
+}
+.rail-tag{font-family:var(--F-mono);font-size:7px;color:var(--blue);letter-spacing:1px;margin-top:3px}
+.rail-model{font-family:var(--F-mono);font-size:7px;color:var(--white3);letter-spacing:1px;margin-top:2px}
+
+.rail-ws{display:flex;align-items:center;gap:6px;padding:7px 14px;border-bottom:1px solid var(--border)}
+#ws-d{width:5px;height:5px;border-radius:50%;background:var(--dim);flex-shrink:0;transition:.3s}
+#ws-d.live{background:var(--blue);box-shadow:0 0 8px var(--blue);animation:dp 2s infinite}
+#ws-d.dead{background:#FF3B30;animation:bk .8s infinite}
+@keyframes dp{0%,100%{opacity:1}50%{opacity:.4}}
+@keyframes bk{0%,100%{opacity:1}50%{opacity:.2}}
+#ws-l{font-family:var(--F-mono);font-size:7px;letter-spacing:1px;color:var(--white3)}
+
+.sec{padding:10px 14px 2px;font-family:var(--F-mono);font-size:7px;letter-spacing:2px;color:var(--blue3);text-transform:uppercase}
+
+.tb{
+  display:flex;align-items:center;gap:8px;padding:7px 14px;
+  cursor:pointer;border:none;background:transparent;
+  color:var(--white3);font-family:var(--F-body);font-size:10px;
+  text-align:left;width:100%;transition:.12s;
+  border-left:2px solid transparent;letter-spacing:.3px;
+}
+.tb:hover{color:var(--white2);background:rgba(10,132,255,0.04)}
+.tb.on{color:var(--blue);background:rgba(10,132,255,0.07);border-left-color:var(--blue)}
+.tb .i{width:14px;text-align:center;flex-shrink:0;font-size:9px;opacity:.5}
+.tb.on .i{opacity:1}
+
+/* P10 tab — special */
+.tb.p10{color:var(--blue);font-weight:600}
+.tb.p10.on{background:rgba(10,132,255,0.12);border-left-color:var(--white)}
+
+.rail-footer{padding:12px 14px;margin-top:auto;border-top:1px solid var(--border)}
+.rfl{font-family:var(--F-mono);font-size:7px;letter-spacing:2px;color:var(--white3);margin-bottom:4px}
+.rfv{font-family:var(--F-num);font-size:18px;font-weight:700;color:var(--blue);line-height:1;text-shadow:var(--glow)}
+.rfs{font-size:7px;color:var(--white3);margin-top:2px;font-family:var(--F-mono)}
+
+/* ═══════════════════════════════════════════════════════════════
+   CONTENT
+═══════════════════════════════════════════════════════════════ */
+#content{flex:1;overflow:hidden;position:relative}
+.pn{position:absolute;inset:0;overflow-y:auto;padding:18px;display:none}
+.pn.on{display:block}
+
+/* ═══════════════════════════════════════════════════════════════
+   CARDS
+═══════════════════════════════════════════════════════════════ */
+.card{
+  background:var(--obs2);border:1px solid var(--border);
+  border-radius:var(--r);padding:16px;margin-bottom:10px;
+  position:relative;overflow:hidden;
+}
+.card::after{
+  content:'';position:absolute;top:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(10,132,255,0.15),transparent);
+}
+.card-inset{
+  background:var(--obs3);border:1px solid var(--border);
+  border-radius:var(--r);padding:12px;
+}
+
+/* HERO CARD — electric blue glow */
+.card-hero{
+  background:linear-gradient(135deg,var(--obs2),var(--obs3));
+  border:1px solid var(--border2);
+  box-shadow:inset 0 0 40px rgba(10,132,255,0.04);
+}
+
+.ct{
+  font-family:var(--F-mono);font-size:7px;letter-spacing:2px;
+  color:var(--white3);margin-bottom:10px;text-transform:uppercase;
+}
+
+.mv{font-family:var(--F-num);font-size:28px;font-weight:700;color:var(--white);line-height:1}
+.mv-blue{color:var(--blue);text-shadow:var(--glow)}
+.mv-sm{font-size:18px}
+.ms{font-size:9px;color:var(--white3);margin-top:4px}
+
+/* Hero number — JUPITERR style */
+.hn{
+  font-family:var(--F-title);font-size:clamp(20px,3.5vw,40px);
+  font-weight:900;color:var(--blue);text-align:center;letter-spacing:2px;
+  text-shadow:var(--glow);
+}
+.hn-white{color:var(--white);text-shadow:0 0 20px rgba(255,255,255,0.15)}
+
+/* Grids */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.g4{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.g5{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+
+/* Info rows */
+.ir{display:flex;justify-content:space-between;align-items:center;padding:5px 0;border-bottom:1px solid rgba(10,132,255,0.06);font-size:10px}
+.ir:last-child{border-bottom:none}
+.ik{color:var(--white3)}
+.iv{color:var(--white2);font-family:var(--F-mono);font-size:9px}
+.iv-b{color:var(--blue)}
+.iv-w{color:var(--white)}
+.iv-d{color:var(--dim)}
+
+/* Badges */
+.badge{display:inline-flex;align-items:center;padding:2px 8px;border-radius:3px;font-family:var(--F-mono);font-size:7px;letter-spacing:1px}
+.bd-b{background:rgba(10,132,255,0.1);color:var(--blue);border:1px solid var(--border2)}
+.bd-w{background:rgba(255,255,255,0.06);color:var(--white);border:1px solid rgba(255,255,255,0.15)}
+.bd-r{background:rgba(255,59,48,0.1);color:#FF3B30;border:1px solid rgba(255,59,48,0.25)}
+
+/* Progress */
+.prog{height:3px;background:rgba(10,132,255,0.12);border-radius:2px;overflow:hidden;margin:8px 0}
+.pf{height:100%;border-radius:2px;transition:width 1s ease}
+.pf-b{background:var(--blue);box-shadow:0 0 6px rgba(10,132,255,0.5)}
+.pf-w{background:var(--white)}
+
+/* Divider */
+.divider{height:1px;background:var(--border);margin:10px 0}
+
+/* Propeller grid */
+.prop-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+.pbtn{
+  padding:10px 6px;text-align:center;border-radius:var(--r);cursor:pointer;
+  border:1px solid var(--border);background:var(--obs3);color:var(--white3);
+  transition:.15s;font-family:var(--F-mono);
+}
+.pbtn:hover{border-color:var(--border2);color:var(--blue)}
+.pbtn.on{border-color:var(--blue);color:var(--blue);background:rgba(10,132,255,0.08);box-shadow:var(--glow)}
+.pbtn.beyond{border-color:var(--white);color:var(--white)}
+.pbtn.beyond.on{background:rgba(255,255,255,0.06);box-shadow:0 0 20px rgba(255,255,255,0.1)}
+.plvl{font-size:11px;font-weight:700;font-family:var(--F-title)}
+.ptgt{font-size:6px;margin-top:3px;color:var(--white3)}
+
+/* Chain pills */
+.c-pill{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:3px;font-size:7px;font-family:var(--F-mono);letter-spacing:1px}
+.c-on {background:rgba(10,132,255,0.08);border:1px solid var(--border2);color:var(--blue)}
+.c-off{background:rgba(255,255,255,0.02);border:1px solid var(--border);color:var(--dim)}
+
+/* Resonance dimension bar */
+.dim-row{display:flex;align-items:center;gap:10px;padding:5px 0;border-bottom:1px solid rgba(10,132,255,0.05)}
+.dim-row:last-child{border-bottom:none}
+.dim-id{color:var(--white3);font-family:var(--F-mono);font-size:8px;min-width:22px;text-align:right}
+.dim-name{color:var(--white2);font-size:10px;min-width:110px}
+.dim-bar{flex:1;height:4px;background:rgba(10,132,255,0.1);border-radius:2px;overflow:hidden}
+.dim-fill{height:100%;background:var(--blue);border-radius:2px;transition:width .5s ease}
+.dim-fill.aligned{background:var(--white);box-shadow:0 0 6px rgba(255,255,255,0.4)}
+.dim-score{font-family:var(--F-mono);font-size:9px;color:var(--white3);min-width:30px;text-align:right}
+.dim-status{font-family:var(--F-mono);font-size:7px;letter-spacing:1px;min-width:50px;text-align:right}
+
+/* Amplifier layer bar */
+.amp-row{display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px solid rgba(10,132,255,0.04)}
+.amp-row:last-child{border-bottom:none}
+.amp-n{color:var(--white3);font-family:var(--F-mono);font-size:7px;min-width:20px;text-align:right}
+.amp-name{color:var(--white2);font-size:9px;flex:1}
+.amp-bar{width:80px;height:2px;background:rgba(10,132,255,0.1);border-radius:1px;overflow:hidden}
+.amp-fill{height:100%;background:var(--blue);border-radius:1px}
+.amp-out{font-family:var(--F-mono);font-size:9px;color:var(--blue);min-width:70px;text-align:right}
+.amp-mult{font-family:var(--F-mono);font-size:8px;color:var(--white3);min-width:40px;text-align:right}
+
+/* Log feed */
+.log-feed{
+  font-family:var(--F-mono);font-size:9px;line-height:1.9;overflow-y:auto;
+  max-height:300px;background:var(--obs3);border:1px solid var(--border);
+  border-radius:var(--r);padding:10px;
+}
+.lr{display:flex;gap:8px;border-bottom:1px solid rgba(10,132,255,0.04);padding:2px 0}
+.lr:last-child{border-bottom:none}
+.lt{color:var(--white3);min-width:75px;flex-shrink:0}
+.lv{color:var(--white2);flex:1}
+.lm{color:var(--blue);min-width:30px;text-align:right}
+.lx{color:var(--white3)}
+
+/* Forms */
+.fg{margin-bottom:9px}
+.fg label{display:block;font-family:var(--F-mono);font-size:7px;letter-spacing:1px;color:var(--white3);margin-bottom:4px;text-transform:uppercase}
+.fi{
+  width:100%;background:var(--obs3);border:1px solid var(--border);
+  color:var(--white);padding:8px 11px;border-radius:var(--r);
+  font-family:var(--F-mono);font-size:11px;outline:none;transition:.12s;
+}
+.fi:focus{border-color:var(--blue);box-shadow:0 0 0 1px rgba(10,132,255,0.2)}
+.fi::placeholder{color:var(--dim)}
+select.fi option{background:var(--obs2)}
+
+/* Buttons */
+.btn{width:100%;padding:9px;border-radius:var(--r);cursor:pointer;font-family:var(--F-title);font-size:7px;letter-spacing:3px;transition:.15s;border:1px solid;margin-top:5px;text-transform:uppercase}
+.btn-b{background:rgba(10,132,255,0.08);border-color:var(--blue2);color:var(--blue)}
+.btn-b:hover{background:rgba(10,132,255,0.16);box-shadow:var(--glow)}
+.btn-w{background:rgba(255,255,255,0.05);border-color:rgba(255,255,255,0.2);color:var(--white)}
+.btn-w:hover{background:rgba(255,255,255,0.1)}
+.btn-r{background:rgba(255,59,48,0.07);border-color:rgba(255,59,48,0.3);color:#FF3B30}
+.btn-sm{padding:5px 12px;width:auto;font-size:7px}
+
+/* Result */
+.res{margin-top:7px;padding:8px 11px;border-radius:var(--r);font-family:var(--F-mono);font-size:9px;display:none;line-height:1.6}
+.res-ok {background:rgba(10,132,255,0.07);border:1px solid var(--border2);color:var(--blue)}
+.res-err{background:rgba(255,59,48,0.07);border:1px solid rgba(255,59,48,0.2);color:#FF3B30}
+
+/* Info box */
+.info-box{background:var(--obs3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:10px;font-size:10px;color:var(--white3);line-height:1.7}
+
+/* FTW types */
+.type-row{display:flex;gap:5px;margin-bottom:9px}
+.ttype{flex:1;padding:7px;background:var(--obs3);border:1px solid var(--border);color:var(--white3);border-radius:var(--r);cursor:pointer;font-family:var(--F-body);font-size:9px;text-align:center;transition:.12s}
+.ttype:hover,.ttype.on{background:rgba(10,132,255,0.06);color:var(--blue);border-color:var(--border2)}
+.tf{display:none}.tf.on{display:block}
+
+/* Control buttons */
+.ctrl-btn{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;background:var(--obs3);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;transition:.15s;margin-bottom:6px;width:100%;font-family:var(--F-body);font-size:10px;color:var(--white2)}
+.ctrl-btn:hover{border-color:var(--border2)}
+.ctrl-btn.danger{border-color:rgba(255,59,48,0.3);color:#FF3B30}
+.ctrl-btn.safe{border-color:rgba(10,132,255,0.3);color:var(--blue)}
+
+/* Speed badge */
+.speed-badge{display:inline-flex;align-items:center;gap:5px;padding:3px 10px;border-radius:3px;font-family:var(--F-mono);font-size:8px;background:rgba(10,132,255,0.08);border:1px solid var(--border2);color:var(--blue)}
+
+/* Reserve — special isolated styling */
+.reserve-card{background:linear-gradient(135deg,var(--obs2),#0D0A14);border:1px solid rgba(255,255,255,0.08)}
+.reserve-label{font-family:var(--F-title);font-size:8px;letter-spacing:3px;color:var(--white3)}
+
+/* P10 — beyond imagination */
+.beyond-badge{
+  display:inline-flex;align-items:center;padding:3px 12px;border-radius:3px;
+  font-family:var(--F-mono);font-size:7px;letter-spacing:2px;
+  background:rgba(255,255,255,0.06);color:var(--white);
+  border:1px solid rgba(255,255,255,0.15);
+  text-transform:uppercase;
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+<!-- ═══════════════════════════════════════════════════════════════
+     RAIL
+═══════════════════════════════════════════════════════════════ -->
+<div id="rail">
+  <div class="rail-header">
+    <div class="rail-logo">RESONANCE</div>
+    <div class="rail-tag">JUPITERR — Model 5</div>
+    <div class="rail-model">25 layers · 10 dimensions · 10M cycles</div>
+  </div>
+  <div class="rail-ws">
+    <div id="ws-d"></div><span id="ws-l">CONNECTING</span>
+  </div>
+
+  <div style="overflow-y:auto;flex:1;min-height:0">
+    <div class="sec">CORE</div>
+    <button class="tb on"  onclick="tab('ov',this)">    <span class="i">○</span> Overview</button>
+    <button class="tb"     onclick="tab('rson',this)">  <span class="i">◈</span> Resonance Field</button>
+    <button class="tb"     onclick="tab('amp',this)">   <span class="i">▣</span> Amplifier</button>
+    <button class="tb p10" onclick="tab('p10',this)">   <span class="i">◆</span> P10 — Beyond</button>
+    <button class="tb"     onclick="tab('prop',this)">  <span class="i">▤</span> Propeller</button>
+    <button class="tb"     onclick="tab('rev',this)">   <span class="i">$</span> Revenue</button>
+
+    <div class="sec">EXECUTION</div>
+    <button class="tb" onclick="tab('exec',this)">      <span class="i">▶</span> Executor</button>
+    <button class="tb" onclick="tab('cycles',this)">    <span class="i">↺</span> Cycles</button>
+    <button class="tb" onclick="tab('bundles',this)">   <span class="i">◉</span> Bundles</button>
+    <button class="tb" onclick="tab('chains',this)">    <span class="i">◎</span> 20 Chains</button>
+    <button class="tb" onclick="tab('flash',this)">     <span class="i">◆</span> Flash Source</button>
+    <button class="tb" onclick="tab('sentinel',this)">  <span class="i">△</span> Sentinel</button>
+
+    <div class="sec">SHADOW</div>
+    <button class="tb" onclick="tab('shadow',this)">    <span class="i">◐</span> Shadow Status</button>
+    <button class="tb" onclick="tab('rotation',this)">  <span class="i">↻</span> Address Rotation</button>
+    <button class="tb" onclick="tab('fragment',this)">  <span class="i">⊡</span> Fragmentation</button>
+    <button class="tb" onclick="tab('ecosystem',this)"> <span class="i">⊕</span> Ecosystem Monitor</button>
+    <button class="tb" onclick="tab('routing',this)">   <span class="i">⊞</span> Shadow Routing</button>
+
+    <div class="sec">RESERVE</div>
+    <button class="tb" onclick="tab('reserve',this)">   <span class="i">□</span> Reserve Status</button>
+    <button class="tb" onclick="tab('arm',this)">       <span class="i">⊛</span> Reserve Arm</button>
+
+    <div class="sec">PROTOCOL</div>
+    <button class="tb" onclick="tab('fieldmap',this)">  <span class="i">≡</span> Field Map</button>
+    <button class="tb" onclick="tab('oracle',this)">    <span class="i">◎</span> Oracle</button>
+    <button class="tb" onclick="tab('clock',this)">     <span class="i">◉</span> Clock</button>
+    <button class="tb" onclick="tab('registry',this)">  <span class="i">▤</span> Registry</button>
+    <button class="tb" onclick="tab('vault',this)">     <span class="i">□</span> Vault</button>
+    <button class="tb" onclick="tab('guard',this)">     <span class="i">⊘</span> Guard</button>
+
+    <div class="sec">CAPITAL</div>
+    <button class="tb" onclick="tab('ftw',this)">       <span class="i">↑</span> FTW</button>
+    <button class="tb" onclick="tab('fees',this)">      <span class="i">$</span> Fee Engine</button>
+    <button class="tb" onclick="tab('token',this)">     <span class="i">◆</span> RSN Token</button>
+
+    <div class="sec">ANALYTICS</div>
+    <button class="tb" onclick="tab('perf',this)">      <span class="i">△</span> Performance</button>
+    <button class="tb" onclick="tab('audit',this)">     <span class="i">≣</span> Audit Log</button>
+
+    <div class="sec">SYSTEM</div>
+    <button class="tb" onclick="tab('sys',this)">       <span class="i">⊡</span> System</button>
+    <button class="tb" onclick="tab('ctrl',this)">      <span class="i">⊛</span> Control</button>
+  </div>
+
+  <div class="rail-footer">
+    <div class="rfl">REVENUE TODAY</div>
+    <div class="rfv" id="r-rev">$0</div>
+    <div class="rfs" id="r-cycles">0 cycles · x1 resonance</div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════════════════════════
+     CONTENT PANELS
+═══════════════════════════════════════════════════════════════ -->
+<div id="content">
+
+<!-- 1. OVERVIEW -->
+<div id="p-ov" class="pn on">
+  <div class="g3" style="margin-bottom:10px">
+    <div class="card card-hero" style="text-align:center;padding:22px 14px">
+      <div class="ct">REVENUE TODAY</div>
+      <div class="hn" id="ov-rev">$0</div>
+      <div style="font-size:8px;color:var(--white3);margin-top:4px;font-family:var(--F-mono)">sovereign extraction</div>
+    </div>
+    <div class="card card-hero" style="text-align:center;padding:22px 14px">
+      <div class="ct">CYCLES TODAY</div>
+      <div class="hn hn-white" id="ov-cycles">0</div>
+      <div style="font-size:8px;color:var(--white3);margin-top:4px;font-family:var(--F-mono)">of 10,000,000 max</div>
+    </div>
+    <div class="card card-hero" style="text-align:center;padding:22px 14px">
+      <div class="ct">RESONANCE SCORE</div>
+      <div class="hn" id="ov-rson">0/10</div>
+      <div style="font-size:8px;color:var(--white3);margin-top:4px;font-family:var(--F-mono)" id="ov-mult">multiplier: x1</div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-bottom:10px">
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:12px">
+      <div class="ct" style="margin:0">AMPLIFIER + RESONANCE</div>
+      <div class="speed-badge">1ms standard</div>
+      <div id="ov-rson-badge" class="badge bd-b">SCORE: 0/10</div>
+    </div>
+    <div class="g3">
+      <div class="card-inset">
+        <div class="ct">BASE OUTPUT (x1)</div>
+        <div style="font-family:var(--F-num);font-size:20px;font-weight:700;color:var(--white2)">$5T / cycle</div>
+        <div class="ms">25 layers · $70B flash</div>
+      </div>
+      <div class="card-inset">
+        <div class="ct">LIVE OUTPUT</div>
+        <div style="font-family:var(--F-num);font-size:20px;font-weight:700;color:var(--blue)" id="ov-amp-live">$5T</div>
+        <div class="ms" id="ov-amp-mult-note">at x1 resonance</div>
+      </div>
+      <div class="card-inset">
+        <div class="ct">MAX OUTPUT (x10)</div>
+        <div style="font-family:var(--F-num);font-size:20px;font-weight:700;color:var(--white)">$50T / cycle</div>
+        <div class="ms">all 10 dimensions aligned</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="g4" style="margin-bottom:10px">
+    <div class="card"><div class="ct">NET TODAY</div><div class="mv mv-blue" id="ov-net">$0</div><div class="ms">after Aave fees</div></div>
+    <div class="card"><div class="ct">CHAINS</div><div class="mv" id="ov-ch">0/20</div><div class="ms">monitoring</div></div>
+    <div class="card"><div class="ct">PROPELLER</div><div class="mv mv-blue" id="ov-pr">P1</div><div class="ms" id="ov-pt">$50T/day</div></div>
+    <div class="card"><div class="ct">MAX RESONANCE</div><div class="mv" id="ov-maxr">0</div><div class="ms">full alignment events</div></div>
+  </div>
+
+  <div class="g2">
+    <div class="card">
+      <div class="ct">VELOCITY</div>
+      <div class="ir"><span class="ik">Per second</span><span class="iv iv-b" id="ov-vs">$0</span></div>
+      <div class="ir"><span class="ik">Per minute</span><span class="iv"          id="ov-vm">$0</span></div>
+      <div class="ir"><span class="ik">Per hour</span>  <span class="iv"          id="ov-vh">$0</span></div>
+      <div class="ir"><span class="ik">Projected/day</span><span class="iv iv-b"  id="ov-vd">$0</span></div>
+    </div>
+    <div class="card">
+      <div class="ct">STATUS</div>
+      <div class="ir"><span class="ik">Gas</span>        <span class="iv" id="ov-gas">—</span></div>
+      <div class="ir"><span class="ik">Deployment</span> <span class="iv" id="ov-dep">awaiting POL</span></div>
+      <div class="ir"><span class="ik">Shadow layer</span><span class="iv iv-b">ACTIVE — treasury classified</span></div>
+      <div class="ir"><span class="ik">Reserve</span>    <span class="iv" id="ov-res">DISARMED</span></div>
+      <div class="ir"><span class="ik">Executor</span>   <span class="iv" id="ov-exec">—</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 2. RESONANCE FIELD -->
+<div id="p-rson" class="pn">
+  <div class="g3" style="margin-bottom:10px">
+    <div class="card card-hero" style="text-align:center;padding:18px">
+      <div class="ct">ALIGNMENT SCORE</div>
+      <div class="hn" id="rson-score">0/10</div>
+      <div class="ms">dimensions aligned</div>
+    </div>
+    <div class="card card-hero" style="text-align:center;padding:18px">
+      <div class="ct">MULTIPLIER</div>
+      <div class="hn hn-white" id="rson-mult">x1</div>
+      <div class="ms">resonance amplification</div>
+    </div>
+    <div class="card card-hero" style="text-align:center;padding:18px">
+      <div class="ct">MAX EVENTS TODAY</div>
+      <div class="hn" id="rson-max">0</div>
+      <div class="ms">all 10 aligned = x10</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">10 DIMENSIONS — LIVE FIELD STATE</div>
+    <div id="dim-list"></div>
+  </div>
+  <div class="card">
+    <div class="ct">DIMENSION DESCRIPTIONS</div>
+    <div id="dim-desc"></div>
+  </div>
+</div>
+
+<!-- 3. AMPLIFIER -->
+<div id="p-amp" class="pn">
+  <div class="g3" style="margin-bottom:10px">
+    <div class="card"><div class="ct">BASE INPUT</div><div class="mv">$70B</div><div class="ms">Balancer $26B + Aave $44B</div></div>
+    <div class="card"><div class="ct">STANDARD OUTPUT</div><div class="mv mv-blue">$5T</div><div class="ms">25 layers × 1.18 each</div></div>
+    <div class="card"><div class="ct">MAX OUTPUT (x10)</div><div class="mv mv-blue">$50T</div><div class="ms">all 10 resonance aligned</div></div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="ct">25-LAYER BREAKDOWN</div>
+    <div id="amp-layers"></div>
+  </div>
+  <div class="card">
+    <div class="ct">TUNE AMPLIFIER LAYER</div>
+    <div class="g3">
+      <div class="fg"><label>LAYER ID (1-25)</label><input class="fi" id="amp-lid" type="number" min="1" max="25" value="1"></div>
+      <div class="fg"><label>MULTIPLIER</label><input class="fi" id="amp-mult" type="number" value="1180"></div>
+      <div class="fg"><label>DIVISOR</label><input class="fi" id="amp-div" type="number" value="1000"></div>
+    </div>
+    <button class="btn btn-b" onclick="tuneLayer()">UPDATE LAYER</button>
+    <div id="amp-res" class="res"></div>
+  </div>
+</div>
+
+<!-- 4. P10 — BEYOND IMAGINATION -->
+<div id="p-p10" class="pn">
+  <div class="card card-hero" style="text-align:center;padding:28px;margin-bottom:10px">
+    <div style="font-family:var(--F-mono);font-size:8px;letter-spacing:3px;color:var(--blue);margin-bottom:8px">P10 — BEYOND IMAGINATION</div>
+    <div style="font-family:var(--F-title);font-size:clamp(24px,4vw,52px);font-weight:900;color:var(--white);text-shadow:0 0 30px rgba(255,255,255,0.2);letter-spacing:2px" id="p10-daily">$43.2 SEXT</div>
+    <div style="font-size:10px;color:var(--white3);margin-top:6px;font-family:var(--F-mono)">per day at full recursive seeding</div>
+  </div>
+  <div class="g2" style="margin-bottom:10px">
+    <div class="card">
+      <div class="ct">P10 ANNUAL</div>
+      <div style="font-family:var(--F-num);font-size:28px;font-weight:700;color:var(--blue);text-shadow:var(--glow)" id="p10-annual">$15.77 OCT</div>
+      <div class="ms">$15.77 octillion per year</div>
+      <div class="ms" style="margin-top:4px;color:var(--blue)">Combined annual revenue of all SSS models from one day at P10</div>
+    </div>
+    <div class="card">
+      <div class="ct">RECURSIVE SEEDING</div>
+      <div class="ir"><span class="ik">Base seed</span>      <span class="iv iv-b" id="p10-seed">$70B</span></div>
+      <div class="ir"><span class="ik">Seed multiplier</span><span class="iv" id="p10-smult">×1</span></div>
+      <div class="ir"><span class="ik">Cycle count</span>    <span class="iv" id="p10-cyc">0</span></div>
+      <div class="ir"><span class="ik">Total growth</span>   <span class="iv iv-b" id="p10-growth">$0</span></div>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="ct">P10 VELOCITY</div>
+    <div class="g4">
+      <div class="card-inset"><div class="ct">PER SECOND</div><div style="font-family:var(--F-num);font-size:16px;font-weight:700;color:var(--white)" id="p10-vs">$0</div></div>
+      <div class="card-inset"><div class="ct">PER MINUTE</div><div style="font-family:var(--F-num);font-size:16px;font-weight:700;color:var(--white)" id="p10-vm">$0</div></div>
+      <div class="card-inset"><div class="ct">PER HOUR</div>  <div style="font-family:var(--F-num);font-size:16px;font-weight:700;color:var(--white)" id="p10-vh">$0</div></div>
+      <div class="card-inset"><div class="ct">P10 DAILY</div> <div style="font-family:var(--F-num);font-size:16px;font-weight:700;color:var(--blue)" id="p10-vd">$43.2 SEXT</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">THE MATH — VERIFIED</div>
+    <div class="ir"><span class="ik">Amplifier output (standard)</span>   <span class="iv">$5T per cycle</span></div>
+    <div class="ir"><span class="ik">Max resonance multiplier</span>       <span class="iv">×10 (all 10 dimensions)</span></div>
+    <div class="ir"><span class="ik">Max output per cycle</span>           <span class="iv iv-b">$50T per cycle</span></div>
+    <div class="ir"><span class="ik">Max cycles per day</span>             <span class="iv">10,000,000</span></div>
+    <div class="ir"><span class="ik">Recursive seeding factor</span>       <span class="iv">+0.001% per cycle</span></div>
+    <div class="ir"><span class="ik">P10 daily (recursive)</span>          <span class="iv iv-b">$43.2 sextillion</span></div>
+    <div class="ir"><span class="ik">P10 annual</span>                     <span class="iv iv-w">$15.77 octillion</span></div>
+    <div class="ir"><span class="ik">Ecosystem impact</span>               <span class="iv">Shadow layer: 0.1% TVL cap per protocol</span></div>
+  </div>
+</div>
+
+<!-- 5. PROPELLER -->
+<div id="p-prop" class="pn">
+  <div class="card" style="margin-bottom:10px">
+    <div class="ct">ACTIVE PROPELLER</div>
+    <div style="display:flex;align-items:flex-end;gap:14px;margin-bottom:10px">
+      <div style="font-family:var(--F-title);font-size:48px;font-weight:900;color:var(--blue);line-height:1;text-shadow:var(--glow)" id="pr-big">P1</div>
+      <div>
+        <div style="font-size:10px;color:var(--white3)">Daily Target</div>
+        <div style="font-family:var(--F-num);font-size:22px;font-weight:700;color:var(--white)" id="pr-tgt">$50T/day</div>
+        <div style="font-size:9px;color:var(--white3);margin-top:2px">Cycles needed: <span style="color:var(--blue)" id="pr-cy">1</span></div>
+      </div>
+      <div id="pr-beyond-badge" style="display:none">
+        <div class="beyond-badge">BEYOND IMAGINATION</div>
+      </div>
+    </div>
+    <div class="prog"><div class="pf pf-b" id="pr-prog" style="width:0%"></div></div>
+    <div style="display:flex;justify-content:space-between;font-size:8px;color:var(--white3);font-family:var(--F-mono)">
+      <span id="pr-pl">$0</span><span id="pr-pr">$50T</span>
+    </div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="ct">SELECT LEVEL</div>
+    <div class="prop-grid" id="pr-grid"></div>
+  </div>
+  <div class="card">
+    <div class="ct">PROPELLER TABLE</div>
+    <div id="pr-table"></div>
+  </div>
+</div>
+
+<!-- 6. REVENUE -->
+<div id="p-rev" class="pn">
+  <div class="g3" style="margin-bottom:10px">
+    <div class="card"><div class="ct">TODAY</div><div class="mv mv-blue" id="rv-today">$0</div></div>
+    <div class="card"><div class="ct">NET TODAY</div><div class="mv" id="rv-net">$0</div><div class="ms">after Aave fees</div></div>
+    <div class="card"><div class="ct">ALL TIME</div><div class="mv" id="rv-total">$0</div></div>
+  </div>
+  <div class="g3" style="margin-bottom:10px">
+    <div class="card"><div class="ct">PER CYCLE</div><div class="mv mv-blue" id="rv-per">$5T</div></div>
+    <div class="card"><div class="ct">PEAK CYCLE</div><div class="mv" id="rv-peak">$0</div></div>
+    <div class="card"><div class="ct">AVG CYCLE</div><div class="mv" id="rv-avg">$0</div></div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="ct">VELOCITY</div>
+    <div class="g4">
+      <div class="card-inset"><div class="ct">PER SEC</div><div style="font-family:var(--F-num);font-size:16px;font-weight:700;color:var(--white)" id="rv-vs">$0</div></div>
+      <div class="card-inset"><div class="ct">PER MIN</div><div style="font-family:var(--F-num);font-size:16px;font-weight:700;color:var(--white)" id="rv-vm">$0</div></div>
+      <div class="card-inset"><div class="ct">PER HR</div>  <div style="font-family:var(--F-num);font-size:16px;font-weight:700;color:var(--white)" id="rv-vh">$0</div></div>
+      <div class="card-inset"><div class="ct">PROJ/DAY</div><div style="font-family:var(--F-num);font-size:16px;font-weight:700;color:var(--blue)" id="rv-vd">$0</div></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">FEE BREAKDOWN</div>
+    <div class="ir"><span class="ik">Aave flash fee</span><span class="iv">0.05% of $44B = $22M per cycle</span></div>
+    <div class="ir"><span class="ik">Balancer fee</span>  <span class="iv iv-b">0% (zero)</span></div>
+    <div class="ir"><span class="ik">Net per cycle</span> <span class="iv iv-b">$4.999978T per cycle</span></div>
+    <div class="ir"><span class="ik">Total Aave fees today</span><span class="iv" id="rv-fee">$0</span></div>
+  </div>
+</div>
+
+<!-- 7. EXECUTOR -->
+<div id="p-exec" class="pn">
+  <div class="g2" style="margin-bottom:10px">
+    <div class="card"><div class="ct">STATUS</div><div class="mv mv-sm" id="ex-st">—</div></div>
+    <div class="card"><div class="ct">EXEC SPEED</div><div class="mv mv-sm mv-blue" id="ex-ms">1ms</div><div class="ms">1ms standard</div></div>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="ct">EXECUTOR CONFIG</div>
+    <div class="ir"><span class="ik">Address</span>         <span class="iv" id="ex-addr">—</span></div>
+    <div class="ir"><span class="ik">Gas cap</span>          <span class="iv">1,000 gwei</span></div>
+    <div class="ir"><span class="ik">Gas markup</span>       <span class="iv">130%</span></div>
+    <div class="ir"><span class="ik">Gas limit</span>        <span class="iv">5,000,000</span></div>
+    <div class="ir"><span class="ik">Ring buffer</span>      <span class="iv">1ms poll</span></div>
+    <div class="ir"><span class="ik">Concurrency</span>      <span class="iv">Max 5 simultaneous</span></div>
+    <div class="ir"><span class="ik">Nonce management</span> <span class="iv">Mutex queue — zero collision</span></div>
+    <div class="ir"><span class="ik">Resonance-aware</span>  <span class="iv iv-b">Live multiplier from field</span></div>
+  </div>
+  <div class="g2">
+    <button class="btn btn-b" onclick="resumeExec()">RESUME EXECUTOR</button>
+    <button class="btn btn-r" onclick="pauseExec()">PAUSE EXECUTOR</button>
+  </div>
+  <div id="ex-res" class="res"></div>
+</div>
+
+<!-- 8. CYCLES -->
+<div id="p-cycles" class="pn">
+  <div class="g4" style="margin-bottom:10px">
+    <div class="card"><div class="ct">TODAY</div><div class="mv" id="cy-today">0</div></div>
+    <div class="card"><div class="ct">ALL TIME</div><div class="mv" id="cy-total">0</div></div>
+    <div class="card"><div class="ct">MAX/DAY</div><div class="mv mv-blue">10M</div></div>
+    <div class="card"><div class="ct">UTILIZATION</div><div class="mv" id="cy-pct">0%</div></div>
+  </div>
+  <div class="g3" style="margin-bottom:10px">
+    <div class="card"><div class="ct">DETECTED TODAY</div><div class="mv" id="cy-nat">0</div><div class="ms">raw events on-chain</div></div>
+    <div class="card"><div class="ct">SUCCESS</div><div class="mv mv-blue" id="cy-ok">0</div></div>
+    <div class="card"><div class="ct">SUCCESS RATE</div><div class="mv" id="cy-rate">—</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">CYCLE ARCHITECTURE</div>
+    <div class="ir"><span class="ik">Max cycles/day</span>     <span class="iv">10,000,000</span></div>
+    <div class="ir"><span class="ik">Recursive seeding</span>  <span class="iv iv-b">Each cycle output seeds next base</span></div>
+    <div class="ir"><span class="ik">Seed increment</span>     <span class="iv">0.001% of cycle output</span></div>
+    <div class="ir"><span class="ik">Seed multiplier growth</span><span class="iv">+1× every 10,000 cycles</span></div>
+    <div class="ir"><span class="ik">Midnight reset</span>     <span class="iv">Daily cycle counter resets UTC 00:00</span></div>
+    <div class="ir"><span class="ik">Seed reset</span>         <span class="iv">Operator only — manual action required</span></div>
+  </div>
+</div>
+
+<!-- 9. BUNDLES -->
+<div id="p-bundles" class="pn">
+  <div class="g3" style="margin-bottom:10px">
+    <div class="card"><div class="ct">SUBMITTED</div><div class="mv" id="bn-sub">0</div></div>
+    <div class="card"><div class="ct">LANDED</div><div class="mv mv-blue" id="bn-land">0</div></div>
+    <div class="card"><div class="ct">LANDING RATE</div><div class="mv mv-sm" id="bn-rate">—</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">MEV BUNDLE SPEC</div>
+    <div class="ir"><span class="ik">Relay</span>           <span class="iv">Flashbots Polygon</span></div>
+    <div class="ir"><span class="ik">Submission timeout</span><span class="iv">2 seconds</span></div>
+    <div class="ir"><span class="ik">Target block</span>   <span class="iv">Current + 1</span></div>
+    <div class="ir"><span class="ik">Revert protection</span><span class="iv iv-b">Full — reverts are free</span></div>
+    <div class="ir"><span class="ik">On-chain record</span> <span class="iv">ResonanceBundle.sol</span></div>
+  </div>
+</div>
+
+<!-- 10. CHAINS -->
+<div id="p-chains" class="pn">
+  <div class="card" style="margin-bottom:10px">
+    <div class="ct">20 CHAIN COVERAGE</div>
+    <div id="chain-pills" style="display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px"></div>
+    <div class="ir"><span class="ik">Connected</span>       <span class="iv iv-b" id="ch-count">0/20</span></div>
+    <div class="ir"><span class="ik">Event types</span>     <span class="iv">Uniswap V3/V2 swaps — every event triggers</span></div>
+    <div class="ir"><span class="ik">Threshold</span>       <span class="iv iv-b">None — every swap = resonance trigger</span></div>
+    <div class="ir"><span class="ik">Detection speed</span> <span class="iv">Sub-100ms WebSocket</span></div>
+    <div class="ir"><span class="ik">WS stagger</span>      <span class="iv">500ms per chain — prevents burst OOM</span></div>
+    <div class="ir"><span class="ik">Auto-reconnect</span>  <span class="iv">5s on close / 8s on error</span></div>
+  </div>
+</div>
+
+<!-- 11. FLASH SOURCE -->
+<div id="p-flash" class="pn">
+  <div class="g2" style="margin-bottom:10px">
+    <div class="card">
+      <div class="ct">BALANCER V2 — $26B</div>
+      <div class="mv mv-blue">$26B</div><div class="ms">zero fee</div>
+      <div class="ir" style="margin-top:10px"><span class="ik">Fee</span><span class="iv iv-b">0%</span></div>
+      <div class="ir"><span class="ik">Address</span><span class="iv">0xBA12222...</span></div>
+    </div>
+    <div class="card">
+      <div class="ct">AAVE V3 — $44B</div>
+      <div class="mv mv-blue">$44B</div><div class="ms">0.05% fee</div>
+      <div class="ir" style="margin-top:10px"><span class="ik">Fee</span><span class="iv">0.05% ($22M)</span></div>
+      <div class="ir"><span class="ik">Address</span><span class="iv">0x794a613...</span></div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">COMBINED: $70B</div>
+    <div class="ir"><span class="ik">Total flash</span>      <span class="iv">$70,000,000,000</span></div>
+    <div class="ir"><span class="ik">Amplified (standard)</span><span class="iv iv-b">$5T per cycle</span></div>
+    <div class="ir"><span class="ik">Amplified (max res)</span><span class="iv iv-b">$50T per cycle</span></div>
+    <div class="ir"><span class="ik">Net per cycle</span>    <span class="iv">$4.999978T (after $22M Aave fee)</span></div>
+  </div>
+</div>
+
+<!-- 12. SENTINEL -->
+<div id="p-sentinel" class="pn">
+  <div class="g3" style="margin-bottom:10px">
+    <div class="card"><div class="ct">LAST SCORE</div><div class="mv" id="snt-score">0/10</div></div>
+    <div class="card"><div class="ct">MAX EVENTS</div><div class="mv mv-blue" id="snt-max">0</div></div>
+    <div class="card"><div class="ct">PARTIAL EVENTS</div><div class="mv" id="snt-part">0</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">SENTINEL FUNCTION</div>
+    <div class="info-box">The sentinel monitors all 10 resonance dimensions. When any dimension crosses the alignment threshold (score >= 70/100), it fires a ResonanceAligned event. When all 10 align simultaneously, it fires MaxResonance — triggering the x10 multiplier for that cycle.</div>
+    <div class="ir"><span class="ik">Alignment threshold</span><span class="iv">70/100 per dimension</span></div>
+    <div class="ir"><span class="ik">Partial alignment</span>  <span class="iv">1-9 dimensions = 1×-9× multiplier</span></div>
+    <div class="ir"><span class="ik">Full alignment</span>     <span class="iv iv-b">10/10 = x10 multiplier = $50T/cycle</span></div>
+    <div class="ir"><span class="ik">Contract</span>           <span class="iv" id="snt-addr">—</span></div>
+  </div>
+</div>
+
+<!-- 13. SHADOW STATUS -->
+<div id="p-shadow" class="pn">
+  <div class="card card-hero" style="margin-bottom:10px;text-align:center;padding:18px">
+    <div style="font-family:var(--F-mono);font-size:8px;letter-spacing:2px;color:var(--blue);margin-bottom:6px">SOVEREIGN SHADOW PROTOCOL — ACTIVE</div>
+    <div style="font-size:10px;color:var(--white3)">Treasury wallet invisible across all 20 chains and 5 routing hops. Cannot be disabled.</div>
+  </div>
+  <div class="g3" style="margin-bottom:10px">
+    <div class="card"><div class="ct">ROUTES TODAY</div><div class="mv" id="sh-routes">0</div></div>
+    <div class="card"><div class="ct">FRAGMENTS</div><div class="mv" id="sh-frags">0</div></div>
+    <div class="card"><div class="ct">THROTTLES</div><div class="mv" id="sh-throt">0</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">SHADOW ARCHITECTURE — 5 LAYERS</div>
+    <div class="ir"><span class="ik">Layer 1</span><span class="iv">Address rotation — one-time proxy wallets</span></div>
+    <div class="ir"><span class="ik">Layer 2</span><span class="iv">Amount fragmentation — micro-transactions</span></div>
+    <div class="ir"><span class="ik">Layer 3</span><span class="iv">Cross-chain routing — 20 chain hops</span></div>
+    <div class="ir"><span class="ik">Layer 4</span><span class="iv">Temporal dispersion — spread across blocks</span></div>
+    <div class="ir"><span class="ik">Layer 5</span><span class="iv">Ecosystem monitor — 0.1% TVL throttle</span></div>
+    <div class="ir"><span class="ik">Treasury address</span><span class="iv iv-d">CLASSIFIED — never displayed</span></div>
+    <div class="ir"><span class="ik">Ecosystem throttle</span><span class="iv" id="sh-eco">INACTIVE</span></div>
+  </div>
+</div>
+
+<!-- 14. ADDRESS ROTATION -->
+<div id="p-rotation" class="pn">
+  <div class="card">
+    <div class="ct">ADDRESS ROTATION ENGINE</div>
+    <div class="info-box">Every treasury transfer routes through a deterministic one-time-use proxy wallet. Each proxy exists for exactly one transaction, generated from a master seed only the operator controls. On-chain, funds appear to move from contract to random address to random address to treasury — traceable only across all 20 chains simultaneously.</div>
+    <div class="ir"><span class="ik">Proxy generation</span><span class="iv">Deterministic from master seed</span></div>
+    <div class="ir"><span class="ik">Proxy lifetime</span>   <span class="iv">Single transaction — then discarded</span></div>
+    <div class="ir"><span class="ik">On-chain appearance</span><span class="iv">Standard ERC20 transfer</span></div>
+    <div class="ir"><span class="ik">Traceability</span>     <span class="iv">Requires 20-chain analysis + timing correlation</span></div>
+    <div class="ir"><span class="ik">Contract</span>         <span class="iv" id="rot-addr">—</span></div>
+  </div>
+</div>
+
+<!-- 15. FRAGMENTATION -->
+<div id="p-fragment" class="pn">
+  <div class="card">
+    <div class="ct">AMOUNT FRAGMENTATION</div>
+    <div class="info-box">Extractions above $1M are broken into hundreds or thousands of micro-transactions before delivery. Each fragment is sized to appear indistinguishable from normal DeFi activity. The ShadowFragmenter computes optimal fragment count based on amount size.</div>
+    <div class="ir"><span class="ik">Fragment threshold</span>  <span class="iv">$1,000,000 USDC</span></div>
+    <div class="ir"><span class="ik">Fragment size</span>       <span class="iv">Amount ÷ count (max 1000 fragments)</span></div>
+    <div class="ir"><span class="ik">Appearance</span>          <span class="iv">Normal DeFi transaction size</span></div>
+    <div class="ir"><span class="ik">Fragments today</span>     <span class="iv" id="fg-count">0</span></div>
+  </div>
+</div>
+
+<!-- 16. ECOSYSTEM MONITOR -->
+<div id="p-ecosystem" class="pn">
+  <div class="card" style="margin-bottom:10px">
+    <div class="ct">ECOSYSTEM HEALTH MONITOR</div>
+    <div class="info-box">RESONANCE monitors TVL across all major DeFi protocols. If extraction in any 24-hour window exceeds 0.1% of any protocol TVL, the system automatically throttles. This keeps operation sustainable and prevents ecosystem disruption.</div>
+    <div class="ir"><span class="ik">Throttle threshold</span>  <span class="iv">0.1% of any protocol TVL per day</span></div>
+    <div class="ir"><span class="ik">Check interval</span>      <span class="iv">Every 5 minutes</span></div>
+    <div class="ir"><span class="ik">Auto-resume</span>         <span class="iv">Next day UTC 00:00 reset</span></div>
+    <div class="ir"><span class="ik">Ecosystem throttle</span>  <span class="iv" id="eco-status">INACTIVE</span></div>
+  </div>
+  <div class="card">
+    <div class="ct">PROTOCOL TVL TRACKING</div>
+    <div class="ir"><span class="ik">Aave V3</span>     <span class="iv">$17.046B (live research confirmed)</span></div>
+    <div class="ir"><span class="ik">Balancer</span>    <span class="iv">$1.5B</span></div>
+    <div class="ir"><span class="ik">Uniswap</span>     <span class="iv">$6B</span></div>
+    <div class="ir"><span class="ik">Curve</span>       <span class="iv">$2B</span></div>
+    <div class="ir"><span class="ik">0.1% daily cap</span><span class="iv iv-b">Auto-enforced</span></div>
+  </div>
+</div>
+
+<!-- 17. SHADOW ROUTING -->
+<div id="p-routing" class="pn">
+  <div class="card">
+    <div class="ct">ROUTING ARCHITECTURE</div>
+    <div class="info-box">The ShadowRouter receives fragmented amounts from ShadowProxy and delivers each fragment through a multi-hop path before reaching treasury. Each hop uses a different token denomination, reducing traceability to near-zero.</div>
+    <div class="ir"><span class="ik">ShadowProxy</span>      <span class="iv" id="srt-proxy">—</span></div>
+    <div class="ir"><span class="ik">ShadowRouter</span>     <span class="iv" id="srt-router">—</span></div>
+    <div class="ir"><span class="ik">ShadowDispatcher</span> <span class="iv" id="srt-disp">—</span></div>
+    <div class="ir"><span class="ik">ShadowVault</span>      <span class="iv" id="srt-vault">—</span></div>
+    <div class="ir"><span class="ik">Completed routes</span> <span class="iv" id="srt-complete">—</span></div>
+  </div>
+</div>
+
+<!-- 18. RESERVE STATUS -->
+<div id="p-reserve" class="pn">
+  <div class="card reserve-card" style="margin-bottom:10px;padding:20px">
+    <div class="reserve-label">RESERVE SYSTEM — $100T</div>
+    <div style="margin-top:10px;font-size:10px;color:var(--white3);line-height:1.7">
+      The reserve is completely isolated from all normal RESONANCE operations. It is not part of the propeller, not part of beyond imagination, and cannot be triggered by any automated system. Activation requires a direct operator wallet call with a 60-second timelock.
+    </div>
+    <div style="margin-top:12px">
+      <div class="ir"><span class="ik">Reserve cap</span>   <span class="iv iv-w">$100,000,000,000,000 ($100T)</span></div>
+      <div class="ir"><span class="ik">Status</span>        <span class="iv" id="res-status">DISARMED</span></div>
+      <div class="ir"><span class="ik">Use count</span>     <span class="iv" id="res-uses">0</span></div>
+      <div class="ir"><span class="ik">Last activated</span><span class="iv" id="res-last">Never</span></div>
+      <div class="ir"><span class="ik">Timelock</span>      <span class="iv">60 seconds — cannot be bypassed</span></div>
+      <div class="ir"><span class="ik">Caller restriction</span><span class="iv iv-w">Direct operator wallet only — no contract intermediary</span></div>
+      <div class="ir"><span class="ik">Auto-disarm</span>   <span class="iv">After single use — requires re-arming</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 19. RESERVE ARM -->
+<div id="p-arm" class="pn">
+  <div class="card reserve-card" style="margin-bottom:10px">
+    <div class="reserve-label">RESERVE ACTIVATION — OPERATOR ONLY</div>
+    <div class="info-box" style="margin-top:12px">
+      This panel initiates the reserve timelock. The reserve adds $100T on top of the amplifier output for one single cycle, then auto-disarms. Two steps are required: initiate timelock, then confirm after 60 seconds. This cannot be called by any contract — only your direct wallet.
+    </div>
+    <button class="btn btn-w" onclick="showRes('arm-res','This must be executed via direct wallet call to ResonanceReserve.sol initiateTimelock() — not through the dashboard.',false)" style="margin-top:0">INITIATE TIMELOCK (DIRECT WALLET REQUIRED)</button>
+    <div id="arm-res" class="res" style="margin-top:8px"></div>
+  </div>
+</div>
+
+<!-- 20. FIELD MAP -->
+<div id="p-fieldmap" class="pn">
+  <div class="card">
+    <div class="ct">RESONANCE FIELD MAP — 20 CHAINS × 10 DIMENSIONS</div>
+    <div class="info-box">The ResonanceFieldMap contract maintains persistent dimension scores for all 20 chains simultaneously. The global alignment score is an exponential moving average of all chain readings. High global score = sustained resonance = higher expected multiplier.</div>
+    <div class="ir"><span class="ik">Global alignment score</span><span class="iv iv-b" id="fm-global">—</span></div>
+    <div class="ir"><span class="ik">Contract</span>              <span class="iv" id="fm-addr">—</span></div>
+    <div class="ir"><span class="ik">Registered chains</span>     <span class="iv">20</span></div>
+    <div class="ir"><span class="ik">Dimensions tracked</span>    <span class="iv">10 per chain</span></div>
+  </div>
+</div>
+
+<!-- 21. ORACLE -->
+<div id="p-oracle" class="pn">
+  <div class="card">
+    <div class="ct">CHAINLINK PRICE ORACLE</div>
+    <div class="ir"><span class="ik">ETH/USD feed</span>  <span class="iv">0xF9680D99D6C9589e2a93a78A04A279e509205945</span></div>
+    <div class="ir"><span class="ik">BTC/USD feed</span>  <span class="iv">0xc907E116054Ad103354f2D350FD2514433D57F6f</span></div>
+    <div class="ir"><span class="ik">MATIC/USD feed</span><span class="iv">0xAB594600376Ec9fD91F8e885dADF0CE036862dE0</span></div>
+    <div class="ir"><span class="ik">Refresh interval</span><span class="iv">30 seconds</span></div>
+    <div class="ir"><span class="ik">Contract</span>      <span class="iv" id="or-addr">—</span></div>
+    <div class="ir"><span class="ik">Purpose</span>       <span class="iv">Feeds resonance dimension scores</span></div>
+  </div>
+</div>
+
+<!-- 22. CLOCK -->
+<div id="p-clock" class="pn">
+  <div class="card">
+    <div class="ct">BLOCK TIMING ORACLE</div>
+    <div class="info-box">ResonanceClock tracks block intervals using an exponential moving average. Faster blocks = higher MEV density = stronger Block dimension score = higher resonance. Polygon targets ~2s blocks.</div>
+    <div class="ir"><span class="ik">Target block interval</span><span class="iv">2 seconds (Polygon)</span></div>
+    <div class="ir"><span class="ik">Block score</span>          <span class="iv">70-100 — always contributes to resonance</span></div>
+    <div class="ir"><span class="ik">Contract</span>             <span class="iv" id="cl-addr">—</span></div>
+  </div>
+</div>
+
+<!-- 23. REGISTRY -->
+<div id="p-registry" class="pn">
+  <div class="card">
+    <div class="ct">CHAIN + POOL REGISTRY</div>
+    <div class="ir"><span class="ik">Registered chains</span><span class="iv">20 (all SSS chains)</span></div>
+    <div class="ir"><span class="ik">Contract</span>         <span class="iv" id="reg-addr">—</span></div>
+  </div>
+</div>
+
+<!-- 24. VAULT -->
+<div id="p-vault" class="pn">
+  <div class="card">
+    <div class="ct">FLASH ASSET REGISTRY — $70B</div>
+    <div class="ir"><span class="ik">USDC</span><span class="iv">$10B Balancer + $15B Aave</span></div>
+    <div class="ir"><span class="ik">WETH</span><span class="iv">$8B Balancer + $14B Aave</span></div>
+    <div class="ir"><span class="ik">USDT</span><span class="iv">$2B Balancer + $4B Aave</span></div>
+    <div class="ir"><span class="ik">DAI</span> <span class="iv">$2B Balancer + $3B Aave</span></div>
+    <div class="ir"><span class="ik">Total</span><span class="iv iv-b">$70B</span></div>
+    <div class="ir"><span class="ik">Contract</span><span class="iv" id="vt-addr">—</span></div>
+  </div>
+</div>
+
+<!-- 25. GUARD -->
+<div id="p-guard" class="pn">
+  <div class="card">
+    <div class="ct">MEV GUARD</div>
+    <div class="ir"><span class="ik">Double-exec prevented</span><span class="iv" id="gd-dbl">0</span></div>
+    <div class="ir"><span class="ik">Blocked callers</span>      <span class="iv" id="gd-blk">0</span></div>
+    <div class="ir"><span class="ik">Hash buffer</span>          <span class="iv">On-chain mapping — immutable</span></div>
+    <div class="ir"><span class="ik">Contract</span>             <span class="iv" id="gd-addr">—</span></div>
+  </div>
+</div>
+
+<!-- 26. FTW -->
+<div id="p-ftw" class="pn">
+  <div class="info-box">RESONANCE routes 100% of extraction through the shadow layer to the shared treasury in USDC. The FTW tab withdraws any amount from that treasury to your mobile money or bank account via ModemPay. Treasury balance is not displayed.</div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="ct">WITHDRAW TREASURY USDC AS FIAT</div>
+    <div class="type-row">
+      <button class="ttype on" onclick="setFTW('mobile',this)">Mobile Money</button>
+      <button class="ttype"    onclick="setFTW('bank',this)">Bank Transfer</button>
+      <button class="ttype"    onclick="setFTW('intl',this)">International</button>
+    </div>
+    <div class="fg"><label>USDC AMOUNT</label><input class="fi" id="ftw-amt" type="number" placeholder="100000" oninput="ftwQ()"></div>
+    <div id="ftw-q" style="font-family:var(--F-mono);font-size:9px;color:var(--white3);padding:4px 0 10px">Enter amount for quote</div>
+    <div id="ftw-mobile" class="tf on"><div class="fg"><label>PHONE</label><input class="fi" id="ftw-ph" placeholder="+220 XXXXXXXXX"></div></div>
+    <div id="ftw-bank" class="tf">
+      <div class="g2">
+        <div class="fg"><label>ACCOUNT NAME</label><input class="fi" id="ftw-bn" placeholder="Full legal name"></div>
+        <div class="fg"><label>ACCOUNT NUMBER</label><input class="fi" id="ftw-bac" placeholder="Account number"></div>
+      </div>
+    </div>
+    <div id="ftw-intl" class="tf">
+      <div class="g2">
+        <div class="fg"><label>ACCOUNT NAME</label><input class="fi" id="ftw-in" placeholder="Full legal name"></div>
+        <div class="fg"><label>IBAN</label><input class="fi" id="ftw-iac" placeholder="IBAN or account number"></div>
+      </div>
+      <div class="fg"><label>SWIFT / BIC CODE</label><input class="fi" id="ftw-sw" placeholder="XXXXXX__"></div>
+    </div>
+    <button class="btn btn-b" onclick="doFTW()">WITHDRAW AS FIAT</button>
+    <div id="ftw-res" class="res"></div>
+  </div>
+  <div class="card">
+    <div class="ct">FEE SCHEDULE</div>
+    <div class="ir"><span class="ik">Mobile (Wave / Afrimoney)</span><span class="iv">1.5%</span></div>
+    <div class="ir"><span class="ik">Bank transfer</span>           <span class="iv">1.25%</span></div>
+    <div class="ir"><span class="ik">International SWIFT</span>     <span class="iv">1.25%</span></div>
+    <div class="ir"><span class="ik">Amount limit</span>            <span class="iv iv-b">None</span></div>
+    <div class="ir"><span class="ik">Treasury balance</span>        <span class="iv iv-d">CLASSIFIED</span></div>
+  </div>
+</div>
+
+<!-- 27. FEE ENGINE -->
+<div id="p-fees" class="pn">
+  <div class="card">
+    <div class="ct">XCR1-XCR7 FEE STREAMS</div>
+    <div class="ir"><span class="ik">XCR1 — Transfer</span>        <span class="iv">0.10% on all RSN transfers</span></div>
+    <div class="ir"><span class="ik">XCR2 — Institutional</span>   <span class="iv">0.25% institutional transactions</span></div>
+    <div class="ir"><span class="ik">XCR3 — Cross-chain</span>     <span class="iv">0.15% cross-chain routing</span></div>
+    <div class="ir"><span class="ik">XCR4 — Bridge</span>          <span class="iv">0.20% bridge operations</span></div>
+    <div class="ir"><span class="ik">XCR5 — Dormancy</span>        <span class="iv">0.05% yield on idle balances</span></div>
+    <div class="ir"><span class="ik">XCR6 — API</span>             <span class="iv">0.50% API usage</span></div>
+    <div class="ir"><span class="ik">XCR7 — Premium</span>         <span class="iv">1.00% premium tier</span></div>
+    <div class="ir"><span class="ik">Contract</span>               <span class="iv" id="fee-addr">—</span></div>
+  </div>
+</div>
+
+<!-- 28. RSN TOKEN -->
+<div id="p-token" class="pn">
+  <div class="card">
+    <div class="ct">RSN TOKEN</div>
+    <div class="ir"><span class="ik">Name</span>     <span class="iv">Resonance Token</span></div>
+    <div class="ir"><span class="ik">Symbol</span>   <span class="iv">RSN</span></div>
+    <div class="ir"><span class="ik">Decimals</span> <span class="iv">18</span></div>
+    <div class="ir"><span class="ik">Supply</span>   <span class="iv">Operator-minted on demand</span></div>
+    <div class="ir"><span class="ik">Use</span>      <span class="iv">API access, fee payment, partner allocation</span></div>
+    <div class="ir"><span class="ik">Speculative</span><span class="iv iv-d">Not a speculative asset</span></div>
+    <div class="ir"><span class="ik">Contract</span><span class="iv" id="tkn-addr">—</span></div>
+  </div>
+</div>
+
+<!-- 29. PERFORMANCE -->
+<div id="p-perf" class="pn">
+  <div class="g4" style="margin-bottom:10px">
+    <div class="card"><div class="ct">PEAK CYCLE</div><div class="mv mv-blue" id="pf-peak">$0</div></div>
+    <div class="card"><div class="ct">AVG CYCLE</div><div class="mv" id="pf-avg">$0</div></div>
+    <div class="card"><div class="ct">SUCCESS RATE</div><div class="mv" id="pf-rate">—</div></div>
+    <div class="card"><div class="ct">TOTAL AMP OPS</div><div class="mv" id="pf-amp">0</div></div>
+  </div>
+  <div class="card">
+    <div class="ct">RESONANCE PERFORMANCE</div>
+    <div class="ir"><span class="ik">Max alignment events</span>   <span class="iv iv-b" id="pf-maxr">0</span></div>
+    <div class="ir"><span class="ik">All-time cycles</span>        <span class="iv" id="pf-total">0</span></div>
+    <div class="ir"><span class="ik">All-time revenue</span>       <span class="iv iv-b" id="pf-rev">$0</span></div>
+    <div class="ir"><span class="ik">Amplifier standard</span>     <span class="iv">$5T per cycle (25 layers)</span></div>
+    <div class="ir"><span class="ik">Amplifier max resonance</span><span class="iv">$50T per cycle (×10)</span></div>
+    <div class="ir"><span class="ik">Max cycles/day</span>         <span class="iv">10,000,000</span></div>
+    <div class="ir"><span class="ik">P10 daily</span>              <span class="iv iv-b">$43.2 sextillion</span></div>
+    <div class="ir"><span class="ik">P10 annual</span>             <span class="iv iv-w">$15.77 octillion</span></div>
+  </div>
+</div>
+
+<!-- 30. AUDIT LOG -->
+<div id="p-audit" class="pn">
+  <div style="display:flex;gap:5px;margin-bottom:10px">
+    <input class="fi" id="aud-search" placeholder="search tx hash, resonance score..." style="flex:1">
+    <button class="btn btn-b btn-sm" style="margin:0" onclick="loadCycles(500)">LOAD 500</button>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="ct">EXECUTION LOG</div>
+    <div class="log-feed" id="aud-log"><div style="color:var(--dim)">Click LOAD to fetch records</div></div>
+  </div>
+</div>
+
+<!-- SYSTEM is actually used as p-sys -->
+<div id="p-sys" class="pn">
+  <div class="g2" style="margin-bottom:10px">
+    <div class="card">
+      <div class="ct">RUNTIME</div>
+      <div class="ir"><span class="ik">System</span>    <span class="iv">RESONANCE</span></div>
+      <div class="ir"><span class="ik">Codename</span>  <span class="iv">JUPITERR</span></div>
+      <div class="ir"><span class="ik">Model</span>     <span class="iv">5</span></div>
+      <div class="ir"><span class="ik">Version</span>   <span class="iv">1.0.0</span></div>
+      <div class="ir"><span class="ik">Uptime</span>    <span class="iv" id="sy-up">0s</span></div>
+      <div class="ir"><span class="ik">Memory</span>    <span class="iv" id="sy-mb">0MB</span></div>
+      <div class="ir"><span class="ik">WS clients</span><span class="iv" id="sy-ws">0</span></div>
+      <div class="ir"><span class="ik">Deployment</span><span class="iv">Railway — subprocess compilation</span></div>
+    </div>
+    <div class="card">
+      <div class="ct">IDENTITY</div>
+      <div class="ir"><span class="ik">Executor</span>      <span class="iv" id="sy-ex">—</span></div>
+      <div class="ir"><span class="ik">Treasury</span>      <span class="iv iv-d">CLASSIFIED — shadow protected</span></div>
+      <div class="ir"><span class="ik">All-time cycles</span><span class="iv" id="sy-tot">0</span></div>
+      <div class="ir"><span class="ik">All-time revenue</span><span class="iv" id="sy-rev">$0</span></div>
+      <div class="ir"><span class="ik">Gas cap</span>       <span class="iv">1,000 gwei</span></div>
+      <div class="ir"><span class="ik">Contracts</span>     <span class="iv" id="sy-ctrs">0/30</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- 30. CONTROL -->
+<div id="p-ctrl" class="pn">
+  <div class="card" style="margin-bottom:10px">
+    <div class="ct">EXECUTOR CONTROLS</div>
+    <button class="ctrl-btn safe"   onclick="resumeExec()"><span>Resume executor — fire amplifier on every detected swap</span><span>resume</span></button>
+    <button class="ctrl-btn danger" onclick="pauseExec()"> <span>Pause executor — halt all cycle execution</span><span>pause</span></button>
+  </div>
+  <div class="card" style="margin-bottom:10px">
+    <div class="ct">PROPELLER QUICK SET</div>
+    <div class="prop-grid" id="ctrl-grid"></div>
+  </div>
+  <div class="card">
+    <div class="ct">SYSTEM INFO</div>
+    <div class="info-box">RESONANCE is deploy-and-forget. After 30 contracts deploy (0.1 POL to executor), the system runs autonomously — detecting swaps on 20 chains, computing resonance across 10 dimensions, firing the 25-layer amplifier, and routing 100% profit through the shadow layer to treasury.</div>
+    <div class="ir"><span class="ik">Autonomy</span>       <span class="iv iv-b">Full — zero operator action required</span></div>
+    <div class="ir"><span class="ik">Failure mode</span>   <span class="iv iv-b">Atomic revert — zero loss on failure</span></div>
+    <div class="ir"><span class="ik">Restart safety</span><span class="iv iv-b">Contracts persist to /data — no redeployment</span></div>
+  </div>
+  <div id="ctrl-res" class="res" style="margin-top:8px"></div>
+</div>
+
+</div><!-- /content -->
+</div><!-- /app -->
+
+<!-- ═══════════════════════════════════════════════════════════════
+     JAVASCRIPT
+═══════════════════════════════════════════════════════════════ -->
+<script>
+let _S={}, _WS=null, _ft='mobile'
+const FEES={mobile:.015,bank:.0125,intl:.0125}
+
+const CHAIN_NAMES=['polygon','arb','base','opt','eth','bnb','avax','blast','zksync',
+                   'scroll','linea','mantle','gnosis','worldchain','berachain',
+                   'unichain','sei','sonic','sonic2','polygon2']
+
+const DIM_NAMES=['Temporal','Spatial','Depth','Velocity','Gravitational',
+                 'Oracle','Block','Bridge','Liquidation','Recursive']
+
+// ── CONNECTION ────────────────────────────────────────────────────────────────
+function connect(){
+  const proto=location.protocol==='https:'?'wss':'ws'
+  _WS=new WebSocket(`${proto}://${location.host}`)
+  _WS.onopen=()=>wsOk(true)
+  _WS.onclose=()=>{wsOk(false);setTimeout(connect,3000)}
+  _WS.onerror=()=>wsOk(false)
+  _WS.onmessage=e=>{try{const d=JSON.parse(e.data);if(d.type==='state')render(d)}catch{}}
+}
+connect()
+
+function wsOk(ok){
+  const d=el('ws-d'),l=el('ws-l')
+  d.className=ok?'live':'dead'
+  l.textContent=ok?'LIVE':'OFFLINE'
+  l.style.color=ok?'var(--blue)':'#FF3B30'
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────────
+function render(s){
+  _S=s;if(s.booting)return
+
+  // Rail footer
+  set('r-rev',   fB(s.revToday))
+  set('r-cycles',(s.cyclesToday||0).toLocaleString()+' cycles · x'+(s.resonanceMult||1)+' resonance')
+
+  // Overview
+  set('ov-rev',   fB(s.revToday))
+  set('ov-cycles',(s.cyclesToday||0).toLocaleString())
+  const rs=s.resonanceScore||0, rm=s.resonanceMult||1
+  set('ov-rson', rs+'/10')
+  set('ov-mult', 'multiplier: x'+rm)
+  set('ov-rson-badge','SCORE: '+rs+'/10')
+  set('ov-amp-live',   fB((s.ampOutput||5e12)*rm))
+  set('ov-amp-mult-note','at x'+rm+' resonance')
+  set('ov-net',  fB(s.netToday))
+  set('ov-ch',   (s.chainCount||0)+'/20')
+  set('ov-pr',   s.propeller||'P1')
+  set('ov-pt',   fB(s.dailyTarget)+'/day')
+  set('ov-maxr', (s.maxResEvents||0).toLocaleString())
+
+  // Gas
+  const gp=s.gasPrice||0, gok=s.gasOK
+  const gasStr=(gok?'OK ':('PAUSED '))+gp.toFixed(1)+' gwei'
+  const gasEl=el('ov-gas');if(gasEl){gasEl.textContent=gasStr;gasEl.style.color=gok?'var(--blue)':'#FF3B30'}
+
+  // Deployment
+  set('ov-dep', s.deployment?`${s.contracts||0}/30 deployed`:'awaiting 0.1 POL')
+  set('ov-exec', s.executor?s.executor.slice(0,16)+'...':'—')
+
+  // Reserve
+  const resEl=el('ov-res')
+  if(resEl){resEl.textContent=s.reserveArmed?'ARMED — $100T':'DISARMED';resEl.style.color=s.reserveArmed?'#FF3B30':'var(--white3)'}
+
+  // Velocity
+  const v=s.velocity||{}
+  set('ov-vs',fB(v.perSecond||0)+'/s')
+  set('ov-vm',fB(v.perMinute||0)+'/m')
+  set('ov-vh',fB(v.perHour||0)+'/h')
+  set('ov-vd',fB(v.perDay||0)+'/d')
+
+  // Resonance field
+  set('rson-score',rs+'/10')
+  set('rson-mult', 'x'+rm)
+  set('rson-max',  (s.maxResEvents||0).toLocaleString())
+
+  // Render dimension list once
+  if(s.dimensions?.length && !el('dim-list').children.length){
+    el('dim-list').innerHTML=s.dimensions.map((d,i)=>`
+      <div class="dim-row">
+        <span class="dim-id">D${d.id}</span>
+        <span class="dim-name">${d.name}</span>
+        <div class="dim-bar"><div class="dim-fill${d.aligned?' aligned':''}" id="df-${i}" style="width:${d.score||0}%"></div></div>
+        <span class="dim-score" id="ds-${i}">${d.score||0}</span>
+        <span class="dim-status" id="dst-${i}" style="color:${d.aligned?'var(--blue)':'var(--white3)'}">${d.aligned?'ALIGNED':'—'}</span>
+      </div>`).join('')
+    // Descriptions
+    const descs=['Price gaps persisting across blocks','Cross-chain price discrepancies',
+      'Multi-tier liquidity imbalances','Rate of price change differential',
+      'Large wallet position pressure points','Oracle update delay vs market',
+      'MEV opportunity density per block','Cross-chain transfer timing gaps',
+      'Positions approaching liquidation','Output of previous cycle seeds next']
+    el('dim-desc').innerHTML=descs.map((desc,i)=>`
+      <div class="ir"><span class="ik">D${i+1} ${DIM_NAMES[i]}</span><span class="iv" style="font-size:9px">${desc}</span></div>`).join('')
+  }else if(s.dimensions){
+    s.dimensions.forEach((d,i)=>{
+      const fill=el('df-'+i);if(fill){fill.style.width=d.score+'%';fill.className='dim-fill'+(d.aligned?' aligned':'')}
+      const sc=el('ds-'+i);if(sc)sc.textContent=d.score||0
+      const st=el('dst-'+i);if(st){st.textContent=d.aligned?'ALIGNED':'—';st.style.color=d.aligned?'var(--blue)':'var(--white3)'}
+    })
+  }
+
+  // Amplifier layers
+  if(s.ampLayers?.length && !el('amp-layers').children.length){
+    const maxOut=s.ampLayers[s.ampLayers.length-1]?.output||1
+    el('amp-layers').innerHTML=s.ampLayers.map(l=>`
+      <div class="amp-row">
+        <span class="amp-n">L${l.id}</span>
+        <span class="amp-name">${l.name}</span>
+        <span class="amp-mult">${l.mult}</span>
+        <div class="amp-bar"><div class="amp-fill" style="width:${Math.min(100,l.output/maxOut*100)}%"></div></div>
+        <span class="amp-out">${l.outputDisplay}</span>
+      </div>`).join('')
+  }
+
+  // P10 / Beyond
+  const proj=s.projection||{}
+  set('p10-daily',  fB(proj.P10_DAILY||43.2e21))
+  set('p10-annual', fB(proj.P10_ANNUAL||15.77e24))
+  set('p10-vs',     fB(proj.P10_SECOND||0)+'/s')
+  set('p10-vm',     fB(proj.P10_MINUTE||0)+'/m')
+  set('p10-vh',     fB(proj.P10_HOURLY||0)+'/h')
+  set('p10-vd',     fB(proj.P10_DAILY||43.2e21)+'/day')
+  set('p10-seed',   fB(proj.currentSeed||70e9))
+  set('p10-smult',  '×'+(proj.seedMultiplier||1))
+  set('p10-cyc',    (proj.cycleCount||0).toLocaleString())
+  set('p10-growth', fB(proj.totalGrowth||0))
+
+  // Propeller
+  set('pr-big', s.propeller||'P1')
+  const tgt=s.dailyTarget||50e12
+  set('pr-tgt', fB(tgt)+'/day')
+  set('pr-cy',  (s.cyclesNeeded||0).toLocaleString())
+  const pct=Math.min(100,s.progress?.pct||0)
+  el('pr-prog').style.width=pct+'%'
+  set('pr-pl',fB(s.revToday||0)); set('pr-pr',fB(tgt))
+  const bd=el('pr-beyond-badge');if(bd)bd.style.display=s.propellerNum===10?'block':'none'
+
+  if(s.propellerStats?.length){
+    if(!el('pr-grid').children.length){buildGrid('pr-grid',s.propellerStats);buildGrid('ctrl-grid',s.propellerStats)}
+    if(!el('pr-table').children.length){
+      el('pr-table').innerHTML=s.propellerStats.map(p=>`
+        <div class="ir">
+          <span class="ik">${p.level}</span>
+          <span class="iv">${p.targetDisplay}</span>
+          ${p.isBeyond?'<span class="beyond-badge">BEYOND IMAGINATION</span>':'<span style="color:var(--white3);font-size:9px;font-family:var(--F-mono)">'+(p.cyclesNeeded||0).toLocaleString()+' cycles</span>'}
+        </div>`).join('')
+    }
+    s.propellerStats.forEach(p=>{
+      ;['pr-grid','ctrl-grid'].forEach(g=>{
+        const b=el('pb-'+g+'-'+p.level)
+        if(b)b.className='pbtn'+(p.isBeyond?' beyond':'')+(p.active?' on':'')
+      })
+    })
+  }
+
+  // Revenue
+  set('rv-today',fB(s.revToday)); set('rv-net',fB(s.netToday))
+  set('rv-total',fB(s.revTotal)); set('rv-per',fB(s.perCycle||5e12))
+  set('rv-peak', fB(s.peakCycle));set('rv-avg',fB(s.avgCycle))
+  set('rv-vs',fB(v.perSecond||0)); set('rv-vm',fB(v.perMinute||0))
+  set('rv-vh',fB(v.perHour||0));   set('rv-vd',fB(v.perDay||0))
+  set('rv-fee',fB(s.aaveFeeToday))
+
+  // Executor
+  const eSt=el('ex-st');if(eSt){eSt.textContent=s.gasOK?'ACTIVE':'PAUSED';eSt.style.color=s.gasOK?'var(--blue)':'#FF3B30'}
+  set('ex-ms',  (s.execSpeedMs?.toFixed?.(1)||'1')+'ms')
+  set('ex-addr',s.executor?s.executor.slice(0,16)+'...':'—')
+
+  // Cycles
+  set('cy-today',(s.cyclesToday||0).toLocaleString())
+  set('cy-total',(s.cyclesTotal||0).toLocaleString())
+  set('cy-pct',  (s.cyclesNeeded?Math.min(100,(s.cyclesToday||0)/10_000_000*100):0).toFixed(1)+'%')
+  set('cy-nat',  (s.naturalToday||0).toLocaleString())
+  set('cy-ok',   (s.successToday||0).toLocaleString())
+  const sr=s.execToday>0?Math.round(s.successToday/s.execToday*100)+'%':'—'
+  set('cy-rate',sr)
+
+  // Bundles
+  if(s.contracts_){
+    const c=s.contracts_
+    set('snt-addr', c.RESONANCE_SENTINEL ?c.RESONANCE_SENTINEL.slice(0,16)+'...':'—')
+    set('rot-addr', c.SHADOW_PROXY       ?c.SHADOW_PROXY.slice(0,16)+'...':'—')
+    set('srt-proxy',c.SHADOW_PROXY       ?c.SHADOW_PROXY.slice(0,16)+'...':'—')
+    set('srt-router',c.SHADOW_ROUTER     ?c.SHADOW_ROUTER.slice(0,16)+'...':'—')
+    set('srt-disp', c.SHADOW_DISPATCHER  ?c.SHADOW_DISPATCHER.slice(0,16)+'...':'—')
+    set('srt-vault',c.SHADOW_VAULT       ?c.SHADOW_VAULT.slice(0,16)+'...':'—')
+    set('fm-addr',  c.RESONANCE_FIELD_MAP?c.RESONANCE_FIELD_MAP.slice(0,16)+'...':'—')
+    set('or-addr',  c.RESONANCE_ORACLE   ?c.RESONANCE_ORACLE.slice(0,16)+'...':'—')
+    set('cl-addr',  c.RESONANCE_CLOCK    ?c.RESONANCE_CLOCK.slice(0,16)+'...':'—')
+    set('reg-addr', c.RESONANCE_REGISTRY ?c.RESONANCE_REGISTRY.slice(0,16)+'...':'—')
+    set('vt-addr',  c.RESONANCE_VAULT    ?c.RESONANCE_VAULT.slice(0,16)+'...':'—')
+    set('gd-addr',  c.RESONANCE_GUARD    ?c.RESONANCE_GUARD.slice(0,16)+'...':'—')
+    set('fee-addr', c.RESONANCE_FEE      ?c.RESONANCE_FEE.slice(0,16)+'...':'—')
+    set('tkn-addr', c.RESONANCE_TOKEN    ?c.RESONANCE_TOKEN.slice(0,16)+'...':'—')
+  }
+
+  // Chains
+  const cpd=el('chain-pills')
+  if(cpd&&s.chainStates&&!cpd.children.length){
+    CHAIN_NAMES.forEach(n=>{const d=document.createElement('div');d.className='c-pill c-off';d.id='cp-'+n;d.textContent=n.toUpperCase();cpd.appendChild(d)})
+  }
+  if(s.chainStates)CHAIN_NAMES.forEach(n=>{const d=el('cp-'+n);if(d)d.className='c-pill '+(s.chainStates[n]?'c-on':'c-off')})
+  set('ch-count',(s.chainCount||0)+'/20')
+
+  // Shadow
+  const sh=s.shadow||{}
+  set('sh-routes',sh.shadowRoutes||0)
+  set('sh-frags', sh.fragmentsTotal||0)
+  set('sh-throt', sh.throttleEvents||0)
+  const eco=el('sh-eco');if(eco){eco.textContent=s.ecosystemThrottle?'ACTIVE':'INACTIVE';eco.style.color=s.ecosystemThrottle?'#FF3B30':'var(--white3)'}
+  const ecosEl=el('eco-status');if(ecosEl){ecosEl.textContent=s.ecosystemThrottle?'THROTTLE ACTIVE':'HEALTHY';ecosEl.style.color=s.ecosystemThrottle?'#FF3B30':'var(--blue)'}
+
+  // Reserve
+  const resStatus=el('res-status');if(resStatus){resStatus.textContent=s.reserveArmed?'ARMED — ACTIVE':'DISARMED';resStatus.style.color=s.reserveArmed?'#FF3B30':'var(--white3)'}
+  set('res-uses',0)
+  set('res-last','Never')
+
+  // Performance
+  set('pf-peak', fB(s.peakCycle)); set('pf-avg',fB(s.avgCycle))
+  set('pf-rate', sr);               set('pf-amp',(s.totalAmp||0).toLocaleString())
+  set('pf-maxr', (s.maxResEvents||0).toLocaleString())
+  set('pf-total',(s.cyclesTotal||0).toLocaleString())
+  set('pf-rev',  fB(s.revTotal||0))
+
+  // System
+  set('sy-up',  fmtT(s.uptime));  set('sy-mb',(s.mb||0)+'MB')
+  set('sy-ws',  s.wsClients||0);  set('sy-ex',s.executor?s.executor.slice(0,16)+'...':'—')
+  set('sy-tot', (s.cyclesTotal||0).toLocaleString())
+  set('sy-rev', fB(s.revTotal||0))
+  set('sy-ctrs',(s.contracts||0)+'/30')
+}
+
+// ── TABS ─────────────────────────────────────────────────────────────────────
+function tab(n,b){
+  document.querySelectorAll('.pn').forEach(p=>p.classList.remove('on'))
+  document.querySelectorAll('.tb').forEach(x=>x.classList.remove('on'))
+  const p=el('p-'+n)
+  // Map audit and sys panels
+  const panelMap={audit:'p-audit',sys:'p-sys'}
+  const target=el(panelMap[n]||'p-'+n)
+  if(target)target.classList.add('on')
+  b?.classList.add('on')
+  if(n==='audit'||n==='cycles')loadCycles(100)
+}
+
+function buildGrid(gid,stats){
+  el(gid).innerHTML=stats.map(p=>`
+    <div class="pbtn${p.isBeyond?' beyond':''}${p.active?' on':''}" id="pb-${gid}-${p.level}" onclick="setProp('${p.level}')">
+      <div class="plvl">${p.level}</div>
+      <div class="ptgt">${p.isBeyond?'$43.2 SEXT':p.targetDisplay}</div>
+    </div>`).join('')
+}
+
+async function setProp(l){
+  const r=await api('/api/propeller',{level:l})
+  if(!r.ok)console.error('propeller error')
+}
+
+async function resumeExec(){const r=await api('/api/executor/resume',{});showRes('ex-res',r.ok?'Executor resumed':r.error,r.ok);showRes('ctrl-res',r.ok?'Executor resumed':r.error,r.ok)}
+async function pauseExec() {const r=await api('/api/executor/pause', {});showRes('ex-res',r.ok?'Executor paused':r.error, r.ok);showRes('ctrl-res',r.ok?'Executor paused':r.error, r.ok)}
+
+async function loadCycles(limit=100){
+  try{
+    const r=await fetch('/api/cycles?limit='+limit)
+    const d=await r.json()
+    const rows=(d.cycles||[]).slice(-limit).reverse().map(c=>`
+      <div class="lr">
+        <span class="lt">${new Date(c.ts).toLocaleTimeString()}</span>
+        <span class="lv">${fB(c.extracted||c.revenue)}</span>
+        <span class="lm">x${c.resonanceMult||1}</span>
+        <span class="lx">${c.txHash?.slice(0,10)||'—'}...</span>
+      </div>`).join('')
+    ;['aud-log'].forEach(id=>{const f=el(id);if(f)f.innerHTML=rows||'<div style="color:var(--dim)">No cycles yet</div>'})
+  }catch{}
+}
+setInterval(()=>loadCycles(20),5_000)
+
+async function tuneLayer(){
+  const r=await api('/api/amplifier/layer',{layerId:parseInt(v('amp-lid')),mult:parseInt(v('amp-mult')),div:parseInt(v('amp-div'))})
+  showRes('amp-res',r.ok?'Layer updated — amplifier rebuilt':r.error,r.ok)
+}
+
+// FTW
+function setFTW(t,b){
+  document.querySelectorAll('#p-ftw .ttype').forEach(x=>x.classList.remove('on'))
+  b.classList.add('on');_ft=t
+  ;['mobile','bank','intl'].forEach(x=>{const f=el('ftw-'+x);if(f)f.classList.toggle('on',x===t)})
+  ftwQ()
+}
+function ftwQ(){
+  const amt=parseFloat(el('ftw-amt')?.value)||0
+  if(!amt){set('ftw-q','Enter amount for quote');return}
+  const rate=FEES[_ft]||.015;const fee=amt*rate;const net=amt-fee
+  set('ftw-q',`$${fmtN(amt)} USDC → $${fmtN(net)} net | fee: $${fmtN(fee)} (${(rate*100).toFixed(2)}%)`)
+}
+async function doFTW(){
+  const amt=parseFloat(el('ftw-amt')?.value)
+  if(!amt||amt<=0){showRes('ftw-res','Enter valid amount',false);return}
+  const params={amount:amt,type:_ft}
+  if(_ft==='mobile')params.phone=v('ftw-ph')
+  else if(_ft==='bank'){params.accountName=v('ftw-bn');params.accountNumber=v('ftw-bac')}
+  else{params.accountName=v('ftw-in');params.accountNumber=v('ftw-iac');params.swiftCode=v('ftw-sw')}
+  try{const r=await api('/api/ftw/withdraw',params);showRes('ftw-res',r.ok?`Sent $${fmtN(r.net)} net | ${r.reference}`:r.error,r.ok)}
+  catch(e){showRes('ftw-res',e.message,false)}
+}
+
+// ── HELPERS ───────────────────────────────────────────────────────────────────
+async function api(url,body){
+  const r=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)})
+  return r.json()
+}
+function set(id,val){const e=document.getElementById(id);if(e)e.innerHTML=val}
+function el(id){return document.getElementById(id)}
+function v(id){return el(id)?.value||''}
+function showRes(id,msg,ok){const e=el(id);if(!e)return;e.style.display='block';e.textContent=msg;e.className='res '+(ok?'res-ok':'res-err')}
+function fmtN(n){if(!n||isNaN(n))return'0';return Number(n).toLocaleString('en-US',{maximumFractionDigits:2})}
+function fB(n){
+  if(!n||isNaN(n)||n===0)return'$0'
+  const x=Number(n)
+  if(x>=1e27)return'$'+(x/1e27).toFixed(2)+' OCT'
+  if(x>=1e24)return'$'+(x/1e24).toFixed(2)+' SEPT'
+  if(x>=1e21)return'$'+(x/1e21).toFixed(2)+' SEXT'
+  if(x>=1e18)return'$'+(x/1e18).toFixed(2)+' QUINT'
+  if(x>=1e15)return'$'+(x/1e15).toFixed(2)+'Q'
+  if(x>=1e12)return'$'+(x/1e12).toFixed(2)+'T'
+  if(x>=1e9) return'$'+(x/1e9).toFixed(2)+'B'
+  if(x>=1e6) return'$'+(x/1e6).toFixed(2)+'M'
+  if(x>=1e3) return'$'+(x/1e3).toFixed(1)+'K'
+  return'$'+x.toFixed(2)
+}
+function fmtT(s){
+  s=s|0
+  if(s<60)return s+'s'
+  if(s<3600)return(s/60|0)+'m '+(s%60)+'s'
+  return(s/3600|0)+'h '+(s%3600/60|0)+'m'
+}
+</script>
+</body>
+</html>
