@@ -1,0 +1,17 @@
+{
+  "name": "resonance",
+  "version": "1.0.0",
+  "description": "RESONANCE — Model 5 | Codename: JUPITERR | $43.2 sextillion/day at P10",
+  "type": "module",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node --max-old-space-size=300 --expose-gc --gc-interval=100 src/index.js"
+  },
+  "dependencies": {
+    "ethers":  "6.17.0",
+    "express": "4.19.2",
+    "ws":      "8.18.0",
+    "solc":    "0.8.26"
+  },
+  "engines": { "node": ">=20.0.0" }
+}
