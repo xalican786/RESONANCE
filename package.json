@@ -1,11 +1,11 @@
 {
   "name": "resonance",
   "version": "1.0.0",
-  "description": "RESONANCE — Model 5 | JUPITERR | $43.2 sextillion/day at P10 | $15.77 octillion/year",
+  "description": "RESONANCE -- Model 5 | JUPITERR | $43.2 sextillion/day at P10",
   "type": "module",
   "main": "src/index.js",
   "scripts": {
-    "start": "node --max-old-space-size=300 --expose-gc --gc-interval=100 src/index.js"
+    "start": "node --max-old-space-size=150 --expose-gc --gc-interval=100 src/index.js"
   },
   "dependencies": {
     "ethers":  "6.17.0",
