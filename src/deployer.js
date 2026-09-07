@@ -1,5 +1,6 @@
 // src/deployer.js -- RESONANCE deployer
 // Fixed: compile.js receives correct argument order
+// Fixed: deployer log no longer appends .sol to already-complete path messages
 // Workers start ONLY after compiler subprocess fully exits
 // Hard memory isolation: 250MB compile | 150MB runtime | 60MB chains | 80MB exec
 
@@ -117,7 +118,8 @@ function runCompiler() {
           console.log(`[DEPLOYER] + ${msg.name}`)
           break
         case 'missing':
-          console.log(`[DEPLOYER] Missing: ${msg.name}.sol`)
+          // FIXED: msg.name is already the contract name -- no .sol appended
+          console.log(`[DEPLOYER] Missing: ${msg.name}`)
           break
         case 'error':
           console.log(`[DEPLOYER] ${msg.name}: ${msg.msg}`)
@@ -173,8 +175,8 @@ async function deployOne(compiled, name, args = []) {
   const rawGas   = feeData.gasPrice || ethers.parseUnits('50', 'gwei')
   const capGas   = ethers.parseUnits('1000', 'gwei')
   const gasPrice = rawGas > capGas
-    ? (capGas  * 130n) / 100n
-    : (rawGas  * 130n) / 100n
+    ? (capGas * 130n) / 100n
+    : (rawGas * 130n) / 100n
 
   const factory  = new ethers.ContractFactory(c.abi, c.bytecode, signer)
   const contract = await factory.deploy(...args, { gasLimit: 5_000_000, gasPrice })
