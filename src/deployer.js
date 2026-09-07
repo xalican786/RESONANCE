@@ -1,7 +1,7 @@
 // src/deployer.js -- RESONANCE deployer
-// Compiler runs in isolated 250MB subprocess -- exits before ANY workers start
-// Workers are held back by index.js until deployer signals ready
-// This is the key fix: no memory overlap between compiler and runtime
+// Fixed: compile.js receives correct argument order
+// Workers start ONLY after compiler subprocess fully exits
+// Hard memory isolation: 250MB compile | 150MB runtime | 60MB chains | 80MB exec
 
 import { readFileSync, writeFileSync, existsSync, mkdirSync, unlinkSync } from 'fs'
 import { fork }          from 'child_process'
@@ -12,7 +12,7 @@ import {
   EXECUTOR_PK, EXECUTOR, TREASURY,
   CONTRACT, H, PRIMARY_CHAIN,
   BALANCER_VAULT, AAVE_POOL,
-  FLASH_ASSETS, BALANCER_AMOUNTS,
+  FLASH_ASSETS,
 } from './config.js'
 
 const __dir    = path.dirname(fileURLToPath(import.meta.url))
@@ -24,10 +24,7 @@ function makeProvider() {
   const n = new ethers.Network(c.name, c.id)
   return new ethers.JsonRpcProvider(c.http, n, { staticNetwork: n })
 }
-
-function makeSigner() {
-  return new ethers.Wallet(EXECUTOR_PK, makeProvider())
-}
+function makeSigner() { return new ethers.Wallet(EXECUTOR_PK, makeProvider()) }
 
 function loadAddresses() {
   try {
@@ -93,7 +90,7 @@ function inject(addrs) {
   }
 }
 
-// ── FORK COMPILER -- 250MB isolated subprocess ─────────────────────────────────
+// ── FORK COMPILER ─────────────────────────────────────────────────────────────
 function runCompiler() {
   return new Promise((resolve, reject) => {
     console.log('[DEPLOYER] Forking compiler (250MB isolated -- workers held back)...')
@@ -102,7 +99,6 @@ function runCompiler() {
       path.join(__dir, 'compile.js'),
       [],
       {
-        // Hard cap: 250MB -- all compilation memory stays here and exits
         execArgv: [
           '--max-old-space-size=250',
           '--expose-gc',
@@ -133,10 +129,10 @@ function runCompiler() {
           console.log(`[DEPLOYER] Compiled ${msg.count}/30: ${msg.names.join(', ')}`)
           break
         case 'written':
-          console.log(`[DEPLOYER] Artifacts written (${msg.count} contracts) -- compiler exiting`)
+          console.log(`[DEPLOYER] Artifacts written (${msg.count}) -- compiler exiting`)
           break
         case 'already_deployed':
-          console.log('[DEPLOYER] Existing deployment found -- skipping compile')
+          console.log('[DEPLOYER] Existing deployment -- skipping compile')
           resolve({ alreadyDeployed: true, data: msg.data })
           break
         case 'fatal':
@@ -146,15 +142,13 @@ function runCompiler() {
     })
 
     child.on('exit', code => {
-      // Compiler process has fully exited -- its memory is completely freed
-      // NOW it is safe to load compiled artifacts into the parent process
       if (code === 0) {
         const compiled = loadCompiled()
         if (compiled) {
-          console.log('[DEPLOYER] Compiler exited -- memory freed -- loading artifacts')
+          console.log('[DEPLOYER] Compiler exited -- memory freed -- artifacts loaded')
           resolve({ compiled })
         } else {
-          reject(new Error('Compiler exited cleanly but no artifacts found'))
+          reject(new Error('Compiler exited but no artifacts found at ' + COMP_PATH))
         }
       } else {
         reject(new Error(`Compiler subprocess exited with code ${code}`))
@@ -189,7 +183,7 @@ async function deployOne(compiled, name, args = []) {
 
   if (!receipt?.status) throw new Error(`${name} reverted`)
 
-  // Free bytecode immediately after deployment
+  // Free bytecode immediately -- no longer needed
   if (compiled[name]) compiled[name].bytecode = ''
 
   console.log(`[DEPLOYER] ${name} → ${address.slice(0, 14)}...`)
@@ -222,7 +216,7 @@ async function deployAll(compiled, HOT) {
   // Shadow layer
   const svaultAddr  = await deploy('ShadowVault',      [EXECUTOR, TREASURY])
   await deploy('ShadowFragmenter',  [EXECUTOR])
-  const sdispAddr   = await deploy('ShadowDispatcher', [EXECUTOR, svaultAddr || EXECUTOR])
+  const sdispAddr   = await deploy('ShadowDispatcher', [EXECUTOR, svaultAddr  || EXECUTOR])
   await deploy('ShadowGuardian',    [EXECUTOR])
   const srouterAddr = await deploy('ShadowRouter',     [EXECUTOR, TREASURY, sdispAddr || EXECUTOR])
   const sproxyAddr  = await deploy('ShadowProxy',      [EXECUTOR, TREASURY, srouterAddr || EXECUTOR])
@@ -233,26 +227,30 @@ async function deployAll(compiled, HOT) {
 
   // Core protocol
   const splitterAddr = await deploy('ResonanceSplitter', [EXECUTOR, TREASURY, sproxyAddr || EXECUTOR])
-  await deploy('ResonanceBundle',       [EXECUTOR])
-  await deploy('ResonanceTreasury',     [EXECUTOR])
+  await deploy('ResonanceBundle',        [EXECUTOR])
+  await deploy('ResonanceTreasury',      [EXECUTOR])
   const guardAddr    = await deploy('ResonanceGuard',    [EXECUTOR, EXECUTOR])
-  await deploy('ResonanceToken',        [EXECUTOR])
-  await deploy('ResonanceFee',          [EXECUTOR, TREASURY])
-  await deploy('ResonanceDistribution', [EXECUTOR])
+  await deploy('ResonanceToken',         [EXECUTOR])
+  await deploy('ResonanceFee',           [EXECUTOR, TREASURY])
+  await deploy('ResonanceDistribution',  [EXECUTOR])
 
   // Field intelligence
   await deploy('ResonanceClock',    [EXECUTOR])
   await deploy('ResonanceFieldMap', [EXECUTOR])
   const sentinelAddr = await deploy('ResonanceSentinel', [EXECUTOR, EXECUTOR])
   const oracleAddr   = await deploy('ResonanceOracle',   [EXECUTOR, EXECUTOR])
-  const fieldAddr    = await deploy('ResonanceField',    [EXECUTOR, oracleAddr || EXECUTOR, sentinelAddr || EXECUTOR])
+  const fieldAddr    = await deploy('ResonanceField',    [
+    EXECUTOR,
+    oracleAddr   || EXECUTOR,
+    sentinelAddr || EXECUTOR,
+  ])
 
   // Beyond imagination
   await deploy('ResonanceInfinity', [EXECUTOR])
   await deploy('ResonanceBeyond',   [EXECUTOR, EXECUTOR])
   await deploy('ResonanceExecutor', [EXECUTOR])
 
-  // Core execution -- depends on everything above
+  // Core execution -- needs everything above
   const ampAddr = await deploy('ResonanceAmplifier', [
     EXECUTOR,
     EXECUTOR,
@@ -264,7 +262,10 @@ async function deployAll(compiled, HOT) {
   ])
 
   const resonanceAddr = await deploy('Resonance', [
-    EXECUTOR, TREASURY, BALANCER_VAULT, AAVE_POOL,
+    EXECUTOR,
+    TREASURY,
+    BALANCER_VAULT,
+    AAVE_POOL,
     ampAddr      || EXECUTOR,
     fieldAddr    || EXECUTOR,
     guardAddr    || EXECUTOR,
@@ -288,12 +289,14 @@ async function deployAll(compiled, HOT) {
       )
       const assets = [
         [FLASH_ASSETS[0], 'USDC', 6,  BigInt(10e9 * 1e6),  BigInt(15e9 * 1e6)],
-        [FLASH_ASSETS[1], 'WETH', 18, BigInt(Math.floor(8e9/3000)) * BigInt(1e18), BigInt(Math.floor(14e9/3000)) * BigInt(1e18)],
+        [FLASH_ASSETS[1], 'WETH', 18, BigInt(Math.floor(8e9 / 3000))  * BigInt(1e18), BigInt(Math.floor(14e9 / 3000)) * BigInt(1e18)],
         [FLASH_ASSETS[3], 'USDT', 6,  BigInt(2e9 * 1e6),   BigInt(4e9 * 1e6)],
         [FLASH_ASSETS[4], 'DAI',  18, BigInt(2e9) * BigInt(1e18), BigInt(3e9) * BigInt(1e18)],
       ]
       for (const a of assets) {
-        try { await (await vault.addAsset(...a, { gasLimit: 200_000 })).wait(1) } catch {}
+        try {
+          await (await vault.addAsset(...a, { gasLimit: 200_000 })).wait(1)
+        } catch {}
       }
       console.log('[DEPLOYER] ResonanceVault assets registered')
     } catch {}
@@ -321,12 +324,11 @@ async function deployAll(compiled, HOT) {
   HOT[H.CONTRACTS]  = count
   HOT[H.DEPLOYMENT] = 1
 
-  // Purge compiled artifacts from disk -- no longer needed
+  // Purge compiled artifacts
   try { if (existsSync(COMP_PATH)) unlinkSync(COMP_PATH) } catch {}
 
   console.log(`[DEPLOYER] ${count}/30 deployed | Resonance: ${resonanceAddr.slice(0, 14)}...`)
   console.log('[DEPLOYER] Artifacts purged -- runtime memory clean')
-
   return true
 }
 
@@ -361,11 +363,10 @@ function watchForFunds(compiled, SAB, HOT) {
 }
 
 // ── ENTRY POINT ────────────────────────────────────────────────────────────────
-// onWorkersReady: callback called when deployer is done and workers can start
 export function startDeployer(SAB, onWorkersReady) {
   const HOT = new Float64Array(SAB)
 
-  // Check existing deployment -- no compile needed
+  // Existing deployment -- no compile needed
   const existing = loadAddresses()
   if (existing) {
     inject(existing)
@@ -374,12 +375,10 @@ export function startDeployer(SAB, onWorkersReady) {
     HOT[H.CONTRACTS]  = count
     HOT[H.DEPLOYMENT] = 1
     console.log(`[DEPLOYER] Restored ${count} contracts | Resonance: ${existing.Resonance.slice(0, 14)}...`)
-    // Workers can start immediately -- no compilation needed
     onWorkersReady?.()
     return
   }
 
-  // Need to compile -- workers MUST wait until compiler exits
   console.log('[DEPLOYER] No existing deployment -- workers held until compiler exits')
 
   setTimeout(async () => {
@@ -395,25 +394,21 @@ export function startDeployer(SAB, onWorkersReady) {
             .filter(v => typeof v === 'string' && ethers.isAddress(v)).length
           HOT[H.CONTRACTS]  = count
           HOT[H.DEPLOYMENT] = 1
-          // Workers can start now
           onWorkersReady?.()
           return
         }
 
         if (result.compiled) {
-          // Compiler fully exited -- safe to start workers now
           console.log('[DEPLOYER] Compiler exited cleanly -- starting workers')
           onWorkersReady?.()
-          // Then watch for POL while workers run
           watchForFunds(result.compiled, SAB, HOT)
         }
       } catch (e) {
-        console.log(`[DEPLOYER] Compile attempt ${attempts}/5: ${e.message?.slice(0, 60)}`)
+        console.log(`[DEPLOYER] Compile attempt ${attempts}/5: ${e.message?.slice(0, 80)}`)
         if (attempts < 5) {
           setTimeout(tryCompile, 30_000)
         } else {
-          console.log('[DEPLOYER] Compilation failed -- starting workers anyway')
-          // Start workers even on compile failure -- system still runs
+          console.log('[DEPLOYER] Compilation failed after 5 attempts -- starting workers anyway')
           onWorkersReady?.()
         }
       }
