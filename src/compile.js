@@ -13,36 +13,36 @@ const COMP_PATH  = '/data/resonance_compiled.json'
 const ADDR_PATH  = '/data/resonance_contracts.json'
 
 const SOURCES = [
-  { name:'ResonanceGovernance',  path:'./contracts/ResonanceGovernance.sol',  critical:false },
-  { name:'ResonanceRegistry',    path:'./contracts/ResonanceRegistry.sol',    critical:false },
-  { name:'ResonanceVault',       path:'./contracts/ResonanceVault.sol',       critical:false },
-  { name:'ResonanceAudit',       path:'./contracts/ResonanceAudit.sol',       critical:false },
-  { name:'ShadowVault',          path:'./contracts/ShadowVault.sol',          critical:false },
-  { name:'ShadowFragmenter',     path:'./contracts/ShadowFragmenter.sol',     critical:false },
-  { name:'ShadowDispatcher',     path:'./contracts/ShadowDispatcher.sol',     critical:false },
-  { name:'ShadowGuardian',       path:'./contracts/ShadowGuardian.sol',       critical:false },
-  { name:'ShadowRouter',         path:'./contracts/ShadowRouter.sol',         critical:true  },
-  { name:'ShadowProxy',          path:'./contracts/ShadowProxy.sol',          critical:true  },
-  { name:'ResonanceReserveLock', path:'./contracts/ResonanceReserveLock.sol', critical:false },
-  { name:'ResonanceReserve',     path:'./contracts/ResonanceReserve.sol',     critical:false },
-  { name:'ResonanceSplitter',    path:'./contracts/ResonanceSplitter.sol',    critical:true  },
-  { name:'ResonanceBundle',      path:'./contracts/ResonanceBundle.sol',      critical:false },
-  { name:'ResonanceTreasury',    path:'./contracts/ResonanceTreasury.sol',    critical:false },
-  { name:'ResonanceGuard',       path:'./contracts/ResonanceGuard.sol',       critical:true  },
-  { name:'ResonanceToken',       path:'./contracts/ResonanceToken.sol',       critical:false },
-  { name:'ResonanceFee',         path:'./contracts/ResonanceFee.sol',         critical:false },
-  { name:'ResonanceDistribution',path:'./contracts/ResonanceDistribution.sol',critical:false },
-  { name:'ResonanceClock',       path:'./contracts/ResonanceClock.sol',       critical:false },
-  { name:'ResonanceFieldMap',    path:'./contracts/ResonanceFieldMap.sol',    critical:false },
-  { name:'ResonanceField',       path:'./contracts/ResonanceField.sol',       critical:true  },
-  { name:'ResonanceOracle',      path:'./contracts/ResonanceOracle.sol',      critical:true  },
-  { name:'ResonanceSentinel',    path:'./contracts/ResonanceSentinel.sol',    critical:false },
-  { name:'ResonanceInfinity',    path:'./contracts/ResonanceInfinity.sol',    critical:false },
-  { name:'ResonanceBeyond',      path:'./contracts/ResonanceBeyond.sol',      critical:false },
-  { name:'ResonanceExecutor',    path:'./contracts/ResonanceExecutor.sol',    critical:false },
-  { name:'ResonanceAmplifier',   path:'./contracts/ResonanceAmplifier.sol',   critical:true  },
-  { name:'ResonanceFlash',       path:'./contracts/ResonanceFlash.sol',       critical:true  },
-  { name:'Resonance',            path:'./contracts/Resonance.sol',            critical:true  },
+  { name:'ResonanceGovernance',   path:'./contracts/ResonanceGovernance.sol',   critical:false },
+  { name:'ResonanceRegistry',     path:'./contracts/ResonanceRegistry.sol',     critical:false },
+  { name:'ResonanceVault',        path:'./contracts/ResonanceVault.sol',        critical:false },
+  { name:'ResonanceAudit',        path:'./contracts/ResonanceAudit.sol',        critical:false },
+  { name:'ShadowVault',           path:'./contracts/ShadowVault.sol',           critical:false },
+  { name:'ShadowFragmenter',      path:'./contracts/ShadowFragmenter.sol',      critical:false },
+  { name:'ShadowDispatcher',      path:'./contracts/ShadowDispatcher.sol',      critical:false },
+  { name:'ShadowGuardian',        path:'./contracts/ShadowGuardian.sol',        critical:false },
+  { name:'ShadowRouter',          path:'./contracts/ShadowRouter.sol',          critical:true  },
+  { name:'ShadowProxy',           path:'./contracts/ShadowProxy.sol',           critical:true  },
+  { name:'ResonanceReserveLock',  path:'./contracts/ResonanceReserveLock.sol',  critical:false },
+  { name:'ResonanceReserve',      path:'./contracts/ResonanceReserve.sol',      critical:false },
+  { name:'ResonanceSplitter',     path:'./contracts/ResonanceSplitter.sol',     critical:true  },
+  { name:'ResonanceBundle',       path:'./contracts/ResonanceBundle.sol',       critical:false },
+  { name:'ResonanceTreasury',     path:'./contracts/ResonanceTreasury.sol',     critical:false },
+  { name:'ResonanceGuard',        path:'./contracts/ResonanceGuard.sol',        critical:true  },
+  { name:'ResonanceToken',        path:'./contracts/ResonanceToken.sol',        critical:false },
+  { name:'ResonanceFee',          path:'./contracts/ResonanceFee.sol',          critical:false },
+  { name:'ResonanceDistribution', path:'./contracts/ResonanceDistribution.sol', critical:false },
+  { name:'ResonanceClock',        path:'./contracts/ResonanceClock.sol',        critical:false },
+  { name:'ResonanceFieldMap',     path:'./contracts/ResonanceFieldMap.sol',     critical:false },
+  { name:'ResonanceField',        path:'./contracts/ResonanceField.sol',        critical:true  },
+  { name:'ResonanceOracle',       path:'./contracts/ResonanceOracle.sol',       critical:true  },
+  { name:'ResonanceSentinel',     path:'./contracts/ResonanceSentinel.sol',     critical:false },
+  { name:'ResonanceInfinity',     path:'./contracts/ResonanceInfinity.sol',     critical:false },
+  { name:'ResonanceBeyond',       path:'./contracts/ResonanceBeyond.sol',       critical:false },
+  { name:'ResonanceExecutor',     path:'./contracts/ResonanceExecutor.sol',     critical:false },
+  { name:'ResonanceAmplifier',    path:'./contracts/ResonanceAmplifier.sol',    critical:true  },
+  { name:'ResonanceFlash',        path:'./contracts/ResonanceFlash.sol',        critical:true  },
+  { name:'Resonance',             path:'./contracts/Resonance.sol',             critical:true  },
 ]
 
 function gc() {
@@ -56,36 +56,34 @@ function send(msg) {
   try { process.send?.(msg) } catch {}
 }
 
+// name: contract name e.g. "Resonance"
+// filePath: path on disk e.g. "./contracts/Resonance.sol"
 function compileSingle(name, filePath) {
   if (!existsSync(filePath)) {
-    send({ type:'missing', name })
+    send({ type: 'missing', name })
     return null
   }
 
-  // Force GC before every compile
   gc()
 
   let solc, source
   try {
     solc = require('solc')
   } catch (e) {
-    send({ type:'error', name, msg:`solc load: ${e.message?.slice(0,40)}` })
+    send({ type: 'error', name, msg: `solc load: ${e.message?.slice(0, 40)}` })
     return null
   }
 
   try {
     source = readFileSync(filePath, 'utf8')
   } catch (e) {
-    send({ type:'error', name, msg:`read: ${e.message?.slice(0,40)}` })
+    send({ type: 'error', name, msg: `read: ${e.message?.slice(0, 40)}` })
     return null
   }
 
-  // Validate: check for non-ASCII characters in string literals
-  // Common issue: em dash, smart quotes, etc.
   const nonAscii = source.match(/[^\x00-\x7F]/)
   if (nonAscii) {
-    send({ type:'error', name, msg:`Non-ASCII character found -- check string literals for smart quotes or em dashes` })
-    // Still attempt compile -- solc may handle it
+    send({ type: 'error', name, msg: 'Non-ASCII character found -- check string literals for smart quotes or em dashes' })
   }
 
   const input = JSON.stringify({
@@ -102,7 +100,7 @@ function compileSingle(name, filePath) {
   try {
     out = JSON.parse(solc.compile(input))
   } catch (e) {
-    send({ type:'error', name, msg: e.message?.slice(0, 100) })
+    send({ type: 'error', name, msg: e.message?.slice(0, 100) })
     gc()
     return null
   }
@@ -110,7 +108,7 @@ function compileSingle(name, filePath) {
   const fatals = (out.errors || []).filter(e => e.severity === 'error')
   if (fatals.length) {
     fatals.forEach(f =>
-      send({ type:'error', name, msg: f.formattedMessage?.slice(0, 160) })
+      send({ type: 'error', name, msg: f.formattedMessage?.slice(0, 160) })
     )
     out = null
     gc()
@@ -119,7 +117,7 @@ function compileSingle(name, filePath) {
 
   const c = out.contracts?.[`${name}.sol`]?.[name]
   if (!c?.evm?.bytecode?.object || c.evm.bytecode.object.length < 10) {
-    send({ type:'error', name, msg: 'empty bytecode' })
+    send({ type: 'error', name, msg: 'empty bytecode' })
     out = null
     gc()
     return null
@@ -127,7 +125,6 @@ function compileSingle(name, filePath) {
 
   const result = { abi: c.abi, bytecode: '0x' + c.evm.bytecode.object }
 
-  // Free everything before returning
   out    = null
   source = null
   gc()
@@ -136,34 +133,33 @@ function compileSingle(name, filePath) {
 }
 
 async function main() {
-  // Check existing deployment first
+  // Check existing deployment first -- skip compile if already live
   if (existsSync(ADDR_PATH)) {
     try {
       const d = JSON.parse(readFileSync(ADDR_PATH, 'utf8'))
       if (d.Resonance && ethers.isAddress(d.Resonance)) {
-        send({ type:'already_deployed', data: d })
+        send({ type: 'already_deployed', data: d })
         process.exit(0)
         return
       }
     } catch {}
   }
 
-  send({ type:'start', count: SOURCES.length })
+  send({ type: 'start', count: SOURCES.length })
 
   const compiled = {}
 
   for (const { name, path: fp, critical } of SOURCES) {
-    // 600ms between each -- more breathing room than VANCAN's 500ms
     await new Promise(r => setTimeout(r, 600))
 
-    const result = compileSingle(fp === './contracts/Resonance.sol'
-      ? fp : fp, name)
+    // FIXED: correct argument order -- name first, path second
+    const result = compileSingle(name, fp)
 
     if (result) {
       compiled[name] = result
-      send({ type:'compiled', name })
+      send({ type: 'compiled', name })
     } else {
-      if (critical) send({ type:'critical_fail', name })
+      if (critical) send({ type: 'critical_fail', name })
     }
 
     // Extra GC pause every 5 contracts
@@ -174,9 +170,8 @@ async function main() {
   }
 
   const count = Object.keys(compiled).length
-  send({ type:'done', count, names: Object.keys(compiled) })
+  send({ type: 'done', count, names: Object.keys(compiled) })
 
-  // Verify criticals
   const criticals = [
     'Resonance', 'ResonanceAmplifier', 'ResonanceFlash',
     'ResonanceSplitter', 'ResonanceGuard', 'ShadowProxy',
@@ -185,16 +180,15 @@ async function main() {
   const missing = criticals.filter(n => !compiled[n])
 
   if (missing.length > 0) {
-    send({ type:'fatal', msg: `Critical missing: ${missing.join(', ')}` })
+    send({ type: 'fatal', msg: `Critical missing: ${missing.join(', ')}` })
     process.exit(1)
     return
   }
 
   if (!existsSync('/data')) mkdirSync('/data', { recursive: true })
   writeFileSync(COMP_PATH, JSON.stringify(compiled))
-  send({ type:'written', path: COMP_PATH, count })
+  send({ type: 'written', path: COMP_PATH, count })
 
-  // Final GC before exit -- releases all solc memory
   gc()
   gc()
 
@@ -202,6 +196,6 @@ async function main() {
 }
 
 main().catch(e => {
-  send({ type:'fatal', msg: e.message?.slice(0, 100) })
+  send({ type: 'fatal', msg: e.message?.slice(0, 100) })
   process.exit(1)
 })
