@@ -45,6 +45,39 @@ const SOURCES = [
   { name:'Resonance',             path:'./contracts/Resonance.sol',             critical:true  },
 ]
 
+// ── NON-ASCII REPLACEMENT MAP ─────────────────────────────────────────────────
+// Covers every common non-ASCII character that sneaks into Solidity source
+// from copy-paste, editors, or AI-generated code.
+const ASCII_MAP = [
+  // Smart quotes → straight quotes
+  [/\u2018|\u2019|\u201A|\u201B/g, "'"],   // ' ' ‚ ‛  → '
+  [/\u201C|\u201D|\u201E|\u201F/g, '"'],   // " " „ ‟  → "
+  // Dashes → hyphen-minus
+  [/\u2010|\u2011|\u2012|\u2013|\u2014|\u2015/g, '-'], // ‐‑‒–—― → -
+  // Ellipsis
+  [/\u2026/g, '...'],
+  // Non-breaking and other spaces → regular space
+  [/\u00A0|\u200B|\u202F|\u2009|\u2008|\u2007|\u2006|\u2005|\u2004|\u2003|\u2002|\u2001|\u2000/g, ' '],
+  // Zero-width chars → remove
+  [/\u200C|\u200D|\uFEFF/g, ''],
+  // Multiplication sign → *
+  [/\u00D7/g, '*'],
+  // Division sign → /
+  [/\u00F7/g, '/'],
+  // Backtick variants
+  [/\u2018|\u0060|\u00B4/g, '`'],
+  // Any remaining non-ASCII → remove
+  [/[^\x00-\x7F]/g, ''],
+]
+
+function sanitize(source) {
+  let s = source
+  for (const [pattern, replacement] of ASCII_MAP) {
+    s = s.replace(pattern, replacement)
+  }
+  return s
+}
+
 function gc() {
   if (global.gc) {
     global.gc()
@@ -81,10 +114,9 @@ function compileSingle(name, filePath) {
     return null
   }
 
-  const nonAscii = source.match(/[^\x00-\x7F]/)
-  if (nonAscii) {
-    send({ type: 'error', name, msg: 'Non-ASCII character found -- check string literals for smart quotes or em dashes' })
-  }
+  // Strip non-ASCII before compile — silently fixes smart quotes, em dashes, etc.
+  // No warning logged; clean source is the only outcome we care about.
+  source = sanitize(source)
 
   const input = JSON.stringify({
     language: 'Solidity',
@@ -152,7 +184,6 @@ async function main() {
   for (const { name, path: fp, critical } of SOURCES) {
     await new Promise(r => setTimeout(r, 600))
 
-    // FIXED: correct argument order -- name first, path second
     const result = compileSingle(name, fp)
 
     if (result) {
